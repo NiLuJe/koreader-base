@@ -73,6 +73,14 @@ struct mxcfb_gamma {
 	int slopek[16];
 };
 
+/* KOA2 */
+/*
+struct mxcfb_gpu_split_fmt {
+	struct fb_var_screeninfo var;
+	unsigned long offset;
+};
+*/
+
 struct mxcfb_rect {
 	__u32 top;
 	__u32 left;
@@ -122,6 +130,28 @@ struct mxcfb_rect {
 #define WAVEFORM_MODE_GL4			0xA	/* 2-bit from white transition */
 #define WAVEFORM_MODE_GL16_INV			0xB	/* High fidelity for black transition */
 
+/* KOA2... With extra conflicts, oh, joy. */
+/*
+#define WAVEFORM_MODE_GLR16			4
+#define WAVEFORM_MODE_GLD16			5
+#define WAVEFORM_MODE_GCK16			8
+#define WAVEFORM_MODE_GLKW16			9
+
+#define WAVEFORM_MODE_GL16			0x3
+#define WAVEFORM_MODE_A2			0x6
+#define WAVEFORM_MODE_LAST			0x7
+
+#define WAVEFORM_MODE_REAGL			WAVEFORM_MODE_GLR16
+#define WAVEFORM_MODE_REAGLD			WAVEFORM_MODE_GLD16
+
+#define WAVEFORM_MODE_GC16_FAST			WAVEFORM_MODE_GC16
+#define WAVEFORM_MODE_GL16_FAST			WAVEFORM_MODE_GL16
+
+// for backward compatible
+#define WAVEFORM_MODE_GL4			WAVEFORM_MODE_GL16
+#define WAVEFORM_MODE_GL16_INV			WAVEFORM_MODE_GL16
+*/
+
 #define WAVEFORM_MODE_AUTO			257
 
 /* Display temperature */
@@ -140,11 +170,30 @@ struct mxcfb_rect {
 /* PW2 */
 #define EPDC_FLAG_TEST_COLLISION		0x200
 #define EPDC_FLAG_GROUP_UPDATE			0x400
+/* PW2 */
 #define EPDC_FLAG_FORCE_Y2			0x800
 #define EPDC_FLAG_USE_REAGLD			0x1000
 #define EPDC_FLAG_USE_DITHERING_Y1		0x2000
 #define EPDC_FLAG_USE_DITHERING_Y2		0x4000
 #define EPDC_FLAG_USE_DITHERING_Y4		0x8000
+/* KOA2... */
+/*
+#define EPDC_FLAG_USE_DITHERING_Y1		0x2000
+#define EPDC_FLAG_USE_DITHERING_Y4		0x4000
+#define EPDC_FLAG_USE_REGAL			0x8000
+*/
+
+/* KOA2 */
+/*
+enum mxcfb_dithering_mode {
+	EPDC_FLAG_USE_DITHERING_PASSTHROUGH = 0x0,
+	EPDC_FLAG_USE_DITHERING_FLOYD_STEINBERG,
+	EPDC_FLAG_USE_DITHERING_ATKINSON,
+	EPDC_FLAG_USE_DITHERING_ORDERED,
+	EPDC_FLAG_USE_DITHERING_QUANT_ONLY,
+	EPDC_FLAG_USE_DITHERING_MAX,
+};
+*/
 
 /* PW2 */
 /* Waveform type as return by MXCFB_GET_WAVEFORM_TYPE ioctl */
@@ -156,6 +205,8 @@ struct mxcfb_rect {
 /* Display material */
 #define EPD_MATERIAL_V220			0x00
 #define EPD_MATERIAL_V320			0x01
+/* KOA2 */
+//#define EPD_MATERIAL_CARTA_1_2			0x02
 
 #define FB_POWERDOWN_DISABLE			-1
 
@@ -177,6 +228,25 @@ struct mxcfb_update_data {
 	uint flags;
 	struct mxcfb_alt_buffer_data alt_buffer_data;
 };
+
+/* KOA2... More fun times! Append _59x to avoid clashes, even if we don't actually support per-device custom mxcfb_update_data ... */
+/*
+struct mxcfb_update_data_59x {
+	struct mxcfb_rect update_region;
+	__u32 waveform_mode;
+	__u32 update_mode;
+	__u32 update_marker;
+	int temp;
+	unsigned int flags;
+	int dither_mode;
+	int quant_bit;
+	struct mxcfb_alt_buffer_data alt_buffer_data;
+	// start: lab126 added for backward compatible
+	__u32 hist_bw_waveform_mode;    // Lab126: Def bw waveform for hist analysis
+	__u32 hist_gray_waveform_mode;  // Lab126: Def gray waveform for hist analysis
+	// end: lab126 added
+};
+*/
 
 /* PW2 */
 struct mxcfb_update_marker_data {
@@ -227,6 +297,18 @@ struct mxcfb_waveform_modes {
 	int mode_gl4;
 };
 
+/* KOA2 */
+/*
+struct mxcfb_waveform_modes {
+	int mode_init;
+	int mode_du;
+	int mode_gc4;
+	int mode_gc8;
+	int mode_gc16;
+	int mode_gc32;
+};
+*/
+
 /* PW2 */
 /*
  * Structure used to define a 5*3 matrix of parameters for
@@ -250,6 +332,12 @@ struct mxcfb_csc_matrix {
 #define MXCFB_SET_DIFMT				_IOW('F', 0x2C, u_int32_t)
 /* PW2 */
 #define MXCFB_CSC_UPDATE			_IOW('F', 0x2D, struct mxcfb_csc_matrix)
+/* KOA2 */
+/*
+#define MXCFB_SET_GPU_SPLIT_FMT			_IOW('F', 0x2F, struct mxcfb_gpu_split_fmt)
+#define MXCFB_SET_PREFETCH			_IOW('F', 0x30, int)
+#define MXCFB_GET_PREFETCH			_IOR('F', 0x31, int)
+*/
 
 /* IOCTLs for E-ink panel updates */
 #define MXCFB_SET_WAVEFORM_MODES		_IOW('F', 0x2B, struct mxcfb_waveform_modes)
@@ -273,6 +361,12 @@ struct mxcfb_csc_matrix {
 #define MXCFB_CLEAR_UPDATE_QUEUE		_IOW('F', 0x36, __u32)
 /* PW2 */
 #define MXCFB_GET_WORK_BUFFER			_IOWR('F', 0x36, unsigned long)
+/* KOA2 */
+/*
+#define MXCFB_GET_WORK_BUFFER			_IOWR('F', 0x34, unsigned long)
+#define MXCFB_DISABLE_EPDC_ACCESS		_IO('F', 0x35)
+#define MXCFB_ENABLE_EPDC_ACCESS		_IO('F', 0x36)
+*/
 
 #define MXCFB_WAIT_FOR_UPDATE_SUBMISSION	_IOW('F', 0x37, __u32)
 
@@ -287,6 +381,20 @@ struct mxcfb_csc_matrix {
 
 /* Deprecated IOCTL for E-ink panel updates, kindle firmware version == 5.0 */
 #define MXCFB_SEND_UPDATE_50X			_IOW('F', 0x2E, struct mxcfb_update_data_50x)
+
+/* KOA2 */
+/*
+// before update with gck16, reduce bl to zero and turn back to original after
+#define NIGHTMODE_STRIDE_DEFAULT 16  // default
+struct mxcfb_nightmode_ctrl {
+	int disable; // 1: disable; 0, enable
+	int start; // reduced to level for gck16
+	int stride; // back to original level gradually: default
+	int current_level; // current brighness setting
+};
+
+#define MXCFB_SET_NIGHTMODE  _IOR('F', 0x4A, __u32)
+*/
 
 #ifdef __KERNEL__
 
