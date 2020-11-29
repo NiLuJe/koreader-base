@@ -183,7 +183,7 @@ void BB_fill_rect(BlitBuffer *bb, int x, int y, int w, int h, uint8_t v) {
     }
     // Handle any target pitch properly (i.e., fetch the amount of bytes taken per pixel)...
     int bb_type = GET_BB_TYPE(bb);
-    uint8_t bpp = 1;
+    uint8_t bpp;
     switch (bb_type) {
         case TYPE_BB8:
             bpp = 1;
@@ -209,10 +209,8 @@ void BB_fill_rect(BlitBuffer *bb, int x, int y, int w, int h, uint8_t v) {
     } else {
         // Scanline per scanline fill
         //fprintf(stdout, "%s: Scanline fill paintRect\n", __FUNCTION__);
-        uint8_t *p = bb->data;
-        int j;
-        for (j = ry; j < ry+rh; j++) {
-            p = bb->data + bb->stride*j + bpp*rx;
+        for (int j = ry; j < ry+rh; j++) {
+            uint8_t *p = bb->data + bb->stride*j + bpp*rx;
             memset(p, v, bpp*rw);
         }
     }
