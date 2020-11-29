@@ -152,7 +152,7 @@ static const char*
 })
 
 void BB_fill_rect(BlitBuffer *bb, int x, int y, int w, int h, uint8_t v) {
-    int rotation = GET_BB_ROTATION(bb);
+    const int rotation = GET_BB_ROTATION(bb);
     int rx, ry, rw, rh;
     // Compute rotated rectangle coordinates & size
     switch (rotation) {
@@ -182,7 +182,7 @@ void BB_fill_rect(BlitBuffer *bb, int x, int y, int w, int h, uint8_t v) {
                 break;
     }
     // Handle any target pitch properly (i.e., fetch the amount of bytes taken per pixel)...
-    int bb_type = GET_BB_TYPE(bb);
+    const int bb_type = GET_BB_TYPE(bb);
     uint8_t bpp;
     switch (bb_type) {
         case TYPE_BB8:
@@ -217,18 +217,16 @@ void BB_fill_rect(BlitBuffer *bb, int x, int y, int w, int h, uint8_t v) {
 }
 
 void BB_blend_rect(BlitBuffer *bb, int x, int y, int w, int h, Color8A *color) {
-    int i, j;
-    uint8_t r, g, b;
-    int bb_type = GET_BB_TYPE(bb);
-    int bb_rotation = GET_BB_ROTATION(bb);
-    uint8_t alpha = color->alpha;
-    uint8_t ainv = alpha ^ 0xFF;
+    const int bb_type = GET_BB_TYPE(bb);
+    const int bb_rotation = GET_BB_ROTATION(bb);
+    const uint8_t alpha = color->alpha;
+    const uint8_t ainv = alpha ^ 0xFF;
     switch (bb_type) {
         case TYPE_BB8:
                 {
-                Color8 *dstptr;
-                for (j = y; j < y + h; j++) {
-                    for (i = x; i < x + w; i++) {
+                for (int j = y; j < y + h; j++) {
+                    for (int i = x; i < x + w; i++) {
+                        Color8 *dstptr;
                         BB_GET_PIXEL(bb, bb_rotation, Color8, i, j, &dstptr);
                         dstptr->a = DIV_255(dstptr->a * ainv + color->a * alpha);
                     }
@@ -237,9 +235,9 @@ void BB_blend_rect(BlitBuffer *bb, int x, int y, int w, int h, Color8A *color) {
             break;
         case TYPE_BB8A:
             {
-                Color8A *dstptr;
-                for (j = y; j < y + h; j++) {
-                    for (i = x; i < x + w; i++) {
+                for (int j = y; j < y + h; j++) {
+                    for (int i = x; i < x + w; i++) {
+                        Color8A *dstptr;
                         BB_GET_PIXEL(bb, bb_rotation, Color8A, i, j, &dstptr);
                         dstptr->a = DIV_255(dstptr->a * ainv + color->a * alpha);
                     }
@@ -248,13 +246,13 @@ void BB_blend_rect(BlitBuffer *bb, int x, int y, int w, int h, Color8A *color) {
             break;
         case TYPE_BBRGB16:
             {
-                ColorRGB16 *dstptr;
-                for (j = y; j < y + h; j++) {
-                    for (i = x; i < x + w; i++) {
+                for (int j = y; j < y + h; j++) {
+                    for (int i = x; i < x + w; i++) {
+                        ColorRGB16 *dstptr;
                         BB_GET_PIXEL(bb, bb_rotation, ColorRGB16, i, j, &dstptr);
-                        r = DIV_255(ColorRGB16_GetR(dstptr->v) * ainv + color->a * alpha);
-                        g = DIV_255(ColorRGB16_GetG(dstptr->v) * ainv + color->a * alpha);
-                        b = DIV_255(ColorRGB16_GetB(dstptr->v) * ainv + color->a * alpha);
+                        uint8_t r = DIV_255(ColorRGB16_GetR(dstptr->v) * ainv + color->a * alpha);
+                        uint8_t g = DIV_255(ColorRGB16_GetG(dstptr->v) * ainv + color->a * alpha);
+                        uint8_t b = DIV_255(ColorRGB16_GetB(dstptr->v) * ainv + color->a * alpha);
                         dstptr->v = RGB_To_RGB16(r, g, b);
                     }
                 }
@@ -262,9 +260,9 @@ void BB_blend_rect(BlitBuffer *bb, int x, int y, int w, int h, Color8A *color) {
             break;
         case TYPE_BBRGB24:
             {
-                ColorRGB24 *dstptr;
-                for (j = y; j < y + h; j++) {
-                    for (i = x; i < x + w; i++) {
+                for (int j = y; j < y + h; j++) {
+                    for (int i = x; i < x + w; i++) {
+                        ColorRGB24 *dstptr;
                         BB_GET_PIXEL(bb, bb_rotation, ColorRGB24, i, j, &dstptr);
                         dstptr->r = DIV_255(dstptr->r * ainv + color->a * alpha);
                         dstptr->g = DIV_255(dstptr->g * ainv + color->a * alpha);
@@ -275,9 +273,9 @@ void BB_blend_rect(BlitBuffer *bb, int x, int y, int w, int h, Color8A *color) {
             break;
         case TYPE_BBRGB32:
             {
-                ColorRGB32 *dstptr;
-                for (j = y; j < y + h; j++) {
-                    for (i = x; i < x + w; i++) {
+                for (int j = y; j < y + h; j++) {
+                    for (int i = x; i < x + w; i++) {
+                        ColorRGB32 *dstptr;
                         BB_GET_PIXEL(bb, bb_rotation, ColorRGB32, i, j, &dstptr);
                         dstptr->r = DIV_255(dstptr->r * ainv + color->a * alpha);
                         dstptr->g = DIV_255(dstptr->g * ainv + color->a * alpha);
@@ -290,7 +288,7 @@ void BB_blend_rect(BlitBuffer *bb, int x, int y, int w, int h, Color8A *color) {
 }
 
 void BB_invert_rect(BlitBuffer *bb, int x, int y, int w, int h) {
-    int rotation = GET_BB_ROTATION(bb);
+    const int rotation = GET_BB_ROTATION(bb);
     int rx, ry, rw, rh;
     // Compute rotated rectangle coordinates & size
     switch (rotation) {
@@ -320,7 +318,7 @@ void BB_invert_rect(BlitBuffer *bb, int x, int y, int w, int h) {
                 break;
     }
     // Handle any target pitch properly
-    int bb_type = GET_BB_TYPE(bb);
+    const int bb_type = GET_BB_TYPE(bb);
     switch (bb_type) {
         case TYPE_BB8:
             {
