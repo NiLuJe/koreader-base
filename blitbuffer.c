@@ -1003,48 +1003,38 @@ void BB_blit_to_BB32(BlitBuffer *src, BlitBuffer *dst,
 
 void BB_blit_to(BlitBuffer *src, BlitBuffer *dst,
         int dest_x, int dest_y, int offs_x, int offs_y, int w, int h) {
-    int dbb_type = GET_BB_TYPE(dst);
+    const int dbb_type = GET_BB_TYPE(dst);
     //fprintf(stdout, "%s: blit from type: %s to: %s\n", __FUNCTION__, get_bbtype_name(GET_BB_TYPE(src)), get_bbtype_name(GET_BB_TYPE(dst)));
     switch (dbb_type) {
         case TYPE_BB8:
-            BB_blit_to_BB8(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB8(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
         case TYPE_BB8A:
-            BB_blit_to_BB8A(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB8A(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
         case TYPE_BBRGB16:
-            BB_blit_to_BB16(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB16(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
         case TYPE_BBRGB24:
-            BB_blit_to_BB24(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB24(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
         case TYPE_BBRGB32:
-            BB_blit_to_BB32(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB32(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
     }
 }
 
 // Only actually honors dithering when blitting to BB8 ;).
 void BB_dither_blit_to(BlitBuffer *src, BlitBuffer *dst,
         int dest_x, int dest_y, int offs_x, int offs_y, int w, int h) {
-    int dbb_type = GET_BB_TYPE(dst);
+    const int dbb_type = GET_BB_TYPE(dst);
     //fprintf(stdout, "%s: dither blit from type: %s to: %s\n", __FUNCTION__, get_bbtype_name(GET_BB_TYPE(src)), get_bbtype_name(GET_BB_TYPE(dst)));
     switch (dbb_type) {
         case TYPE_BB8:
-            BB_dither_blit_to_BB8(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_dither_blit_to_BB8(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
         case TYPE_BB8A:
-            BB_blit_to_BB8A(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB8A(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
         case TYPE_BBRGB16:
-            BB_blit_to_BB16(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB16(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
         case TYPE_BBRGB24:
-            BB_blit_to_BB24(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB24(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
         case TYPE_BBRGB32:
-            BB_blit_to_BB32(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
-            break;
+            return BB_blit_to_BB32(src, dst, dest_x, dest_y, offs_x, offs_y, w, h);
     }
 }
 
