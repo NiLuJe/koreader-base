@@ -294,7 +294,6 @@ void BB_blend_rect(BlitBuffer *bb, int x, int y, int w, int h, Color8A *color) {
 void BB_invert_rect(BlitBuffer *bb, int x, int y, int w, int h) {
     int rotation = GET_BB_ROTATION(bb);
     int rx, ry, rw, rh;
-    int i, j;
     // Compute rotated rectangle coordinates & size
     switch (rotation) {
         case 0:
@@ -331,17 +330,18 @@ void BB_invert_rect(BlitBuffer *bb, int x, int y, int w, int h) {
                     // Single step for contiguous scanlines
                     //fprintf(stdout, "%s: Full BB8 invertRect\n", __FUNCTION__);
                     uint8_t *p = bb->data + bb->stride*ry;
-                    for (i = 0; i < bb->pixel_stride*rh; i++) {
-                        p[i] ^= 0xFF;
+                    size_t px_count = bb->pixel_stride*rh;
+                    while (px_count--) {
+                        *p++ ^= 0xFF;
                     }
                 } else {
                     // Pixel per pixel
                     //fprintf(stdout, "%s: Pixel BB8 invertRect\n", __FUNCTION__);
-                    uint8_t *p;
-                    for (j = ry; j < ry+rh; j++) {
-                        p = bb->data + bb->stride*j + rx;
-                        for (i = 0; i < rw; i++) {
-                            p[i] ^= 0xFF;
+                    for (int j = ry; j < ry+rh; j++) {
+                        uint8_t *p = bb->data + bb->stride*j + rx;
+                        size_t px_count = rw;
+                        while (px_count--) {
+                            *p++ ^= 0xFF;
                         }
                     }
                 }
@@ -353,39 +353,43 @@ void BB_invert_rect(BlitBuffer *bb, int x, int y, int w, int h) {
                     // Single step for contiguous scanlines
                     //fprintf(stdout, "%s: Full BB8A invertRect\n", __FUNCTION__);
                     uint16_t *p = (uint16_t*) (bb->data + bb->stride*ry);
-                    for (i = 0; i < bb->pixel_stride*rh; i++) {
-                        p[i] ^= 0x00FF;
+                    size_t px_count = bb->pixel_stride*rh;
+                    while (px_count--) {
+                        *p++ ^= 0x00FF;
                     }
                 } else {
                     // Pixel per pixel
                     //fprintf(stdout, "%s: Pixel BB8A invertRect\n", __FUNCTION__);
-                    uint16_t *p;
-                    for (j = ry; j < ry+rh; j++) {
-                        p = (uint16_t*) (bb->data + bb->stride*j + (rx << 1));
-                        for (i = 0; i < rw; i++) {
-                            p[i] ^= 0x00FF;
+                    for (int j = ry; j < ry+rh; j++) {
+                        uint16_t *p = (uint16_t*) (bb->data + bb->stride*j + (rx << 1));
+                        size_t px_count = rw;
+                        while (px_count--) {
+                            *p++ ^= 0x00FF;
                         }
                     }
                 }
             }
             break;
         case TYPE_BBRGB16:
+            // NOTE: Not actually accurate, but RGB565 is the worst.
             {
                 if (rx == 0 && rw == bb->w) {
                     // Single step for contiguous scanlines
                     //fprintf(stdout, "%s: Full BBRGB16 invertRect\n", __FUNCTION__);
                     uint16_t *p = (uint16_t*) (bb->data + bb->stride*ry);
-                    for (i = 0; i < bb->pixel_stride*rh; i++) {
-                        p[i] ^= 0xFFFF;
+                    size_t px_count = bb->pixel_stride*rh;
+                    while (px_count--) {
+                        *p++ ^= 0xFFFF;
                     }
                 } else {
                     // Pixel per pixel
                     //fprintf(stdout, "%s: Pixel BBRGB16 invertRect\n", __FUNCTION__);
                     uint16_t *p;
-                    for (j = ry; j < ry+rh; j++) {
+                    for (int j = ry; j < ry+rh; j++) {
                         p = (uint16_t*) (bb->data + bb->stride*j + (rx << 1));
-                        for (i = 0; i < rw; i++) {
-                            p[i] ^= 0xFFFF;
+                        size_t px_count = rw;
+                        while (px_count--) {
+                            *p++ ^= 0xFFFF;
                         }
                     }
                 }
@@ -397,21 +401,22 @@ void BB_invert_rect(BlitBuffer *bb, int x, int y, int w, int h) {
                     // Single step for contiguous scanlines
                     //fprintf(stdout, "%s: Full BBRGB24 invertRect\n", __FUNCTION__);
                     uint8_t *p = bb->data + bb->stride*ry;
-                    for (i = 0; i < bb->pixel_stride*rh; i+=3) {
-                        p[i] ^= 0xFF;
-                        p[i+1] ^= 0xFF;
-                        p[i+2] ^= 0xFF;
+                    size_t px_count = bb->pixel_stride*rh;
+                    while (px_count--) {
+                        *p++ ^= 0xFF;
+                        *p++ ^= 0xFF;
+                        *p++ ^= 0xFF;
                     }
                 } else {
                     // Pixel per pixel
                     //fprintf(stdout, "%s: Pixel BBRGB24 invertRect\n", __FUNCTION__);
-                    uint8_t *p;
-                    for (j = ry; j < ry+rh; j++) {
-                        p = bb->data + bb->stride*j + (rx * 3);
-                        for (i = 0; i < rw; i+=3) {
-                            p[i] ^= 0xFF;
-                            p[i+1] ^= 0xFF;
-                            p[i+2] ^= 0xFF;
+                    for (int j = ry; j < ry+rh; j++) {
+                        uint8_t *p = bb->data + bb->stride*j + (rx * 3);
+                        size_t px_count = rw;
+                        while (px_count--) {
+                            *p++ ^= 0xFF;
+                            *p++ ^= 0xFF;
+                            *p++ ^= 0xFF;
                         }
                     }
                 }
@@ -423,17 +428,18 @@ void BB_invert_rect(BlitBuffer *bb, int x, int y, int w, int h) {
                     // Single step for contiguous scanlines
                     //fprintf(stdout, "%s: Full BBRGB32 invertRect\n", __FUNCTION__);
                     uint32_t *p = (uint32_t*) (bb->data + bb->stride*ry);
-                    for (i = 0; i < bb->pixel_stride*rh; i++) {
-                        p[i] ^= 0x00FFFFFF;
+                    size_t px_count = bb->pixel_stride*rh;
+                    while (px_count--) {
+                        *p++ ^= 0x00FFFFFF;
                     }
                 } else {
                     // Pixel per pixel
                     //fprintf(stdout, "%s: Pixel BBRGB32 invertRect\n", __FUNCTION__);
-                    uint32_t *p;
-                    for (j = ry; j < ry+rh; j++) {
-                        p = (uint32_t*) (bb->data + bb->stride*j + (rx << 2));
-                        for (i = 0; i < rw; i++) {
-                            p[i] ^= 0x00FFFFFF;
+                    for (int j = ry; j < ry+rh; j++) {
+                        uint32_t *p = (uint32_t*) (bb->data + bb->stride*j + (rx << 2));
+                        size_t px_count = rw;
+                        while (px_count--) {
+                            *p++ ^= 0x00FFFFFF;
                         }
                     }
                 }
