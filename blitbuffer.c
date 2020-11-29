@@ -894,85 +894,71 @@ void BB_blit_to_BB24(BlitBuffer *src, BlitBuffer *dst,
 
 void BB_blit_to_BB32(BlitBuffer *src, BlitBuffer *dst,
         int dest_x, int dest_y, int offs_x, int offs_y, int w, int h) {
-    int d_x, d_y, o_x, o_y;
-    ColorRGB32 *dstptr;
-    int sbb_type = GET_BB_TYPE(src);
-    int sbb_rotation = GET_BB_ROTATION(src);
-    int dbb_rotation = GET_BB_ROTATION(dst);
+    const int sbb_type = GET_BB_TYPE(src);
+    const int sbb_rotation = GET_BB_ROTATION(src);
+    const int dbb_rotation = GET_BB_ROTATION(dst);
     switch (sbb_type) {
         case TYPE_BB8:
             {
-                Color8 *srcptr;
-                o_y = offs_y;
-                for (d_y = dest_y; d_y < dest_y + h; d_y++) {
-                    o_x = offs_x;
-                    for (d_x = dest_x; d_x < dest_x + w; d_x++) {
+                for (int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                    for (int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                        ColorRGB32 *dstptr;
                         BB_GET_PIXEL(dst, dbb_rotation, ColorRGB32, d_x, d_y, &dstptr);
+                        Color8 *srcptr;
                         BB_GET_PIXEL(src, sbb_rotation, Color8, o_x, o_y, &srcptr);
                         dstptr->r = srcptr->a;
                         dstptr->g = srcptr->a;
                         dstptr->b = srcptr->a;
                         dstptr->alpha = 0xFF;
-                        o_x += 1;
                     }
-                    o_y += 1;
                 }
             }
             break;
         case TYPE_BB8A:
             {
-                Color8A *srcptr;
-                o_y = offs_y;
-                for (d_y = dest_y; d_y < dest_y + h; d_y++) {
-                    o_x = offs_x;
-                    for (d_x = dest_x; d_x < dest_x + w; d_x++) {
+                for (int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                    for (int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                        ColorRGB32 *dstptr;
                         BB_GET_PIXEL(dst, dbb_rotation, ColorRGB32, d_x, d_y, &dstptr);
+                        Color8A *srcptr;
                         BB_GET_PIXEL(src, sbb_rotation, Color8A, o_x, o_y, &srcptr);
                         dstptr->r = srcptr->a;
                         dstptr->g = srcptr->a;
                         dstptr->b = srcptr->a;
                         dstptr->alpha = srcptr->alpha; // if bad result, try: srcptr->alpha ^ 0xFF
-                        o_x += 1;
                     }
-                    o_y += 1;
                 }
             }
             break;
         case TYPE_BBRGB16:
             {
-                ColorRGB16 *srcptr;
-                o_y = offs_y;
-                for (d_y = dest_y; d_y < dest_y + h; d_y++) {
-                    o_x = offs_x;
-                    for (d_x = dest_x; d_x < dest_x + w; d_x++) {
+                for (int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                    for (int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                        ColorRGB32 *dstptr;
                         BB_GET_PIXEL(dst, dbb_rotation, ColorRGB32, d_x, d_y, &dstptr);
+                        ColorRGB16 *srcptr;
                         BB_GET_PIXEL(src, sbb_rotation, ColorRGB16, o_x, o_y, &srcptr);
                         dstptr->r = ColorRGB16_GetR(srcptr->v);
                         dstptr->g = ColorRGB16_GetG(srcptr->v);
                         dstptr->b = ColorRGB16_GetB(srcptr->v);
                         dstptr->alpha = 0xFF;
-                        o_x += 1;
                     }
-                    o_y += 1;
                 }
             }
             break;
         case TYPE_BBRGB24:
             {
-                ColorRGB24 *srcptr;
-                o_y = offs_y;
-                for (d_y = dest_y; d_y < dest_y + h; d_y++) {
-                    o_x = offs_x;
-                    for (d_x = dest_x; d_x < dest_x + w; d_x++) {
+                for (int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                    for (int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                        ColorRGB32 *dstptr;
                         BB_GET_PIXEL(dst, dbb_rotation, ColorRGB32, d_x, d_y, &dstptr);
+                        ColorRGB24 *srcptr;
                         BB_GET_PIXEL(src, sbb_rotation, ColorRGB24, o_x, o_y, &srcptr);
                         dstptr->r = srcptr->r;
                         dstptr->g = srcptr->g;
                         dstptr->b = srcptr->b;
                         dstptr->alpha = 0xFF;
-                        o_x += 1;
                     }
-                    o_y += 1;
                 }
             }
             break;
@@ -992,8 +978,7 @@ void BB_blit_to_BB32(BlitBuffer *src, BlitBuffer *dst,
                     } else {
                         // Scanline per scanline copy
                         //fprintf(stdout, "%s: scanline copy blit from BBRGB32 to BBRGB32\n", __FUNCTION__);
-                        o_y = offs_y;
-                        for (d_y = dest_y; d_y < dest_y+h; d_y++, o_y++) {
+                        for (int d_y = dest_y, o_y = offs_y; d_y < dest_y+h; d_y++, o_y++) {
                             // BBRGB32 is 4 bytes per pixel
                             const uint8_t *srcp = src->data + src->stride*o_y + (offs_x << 2);
                             uint8_t *dstp = dst->data + dst->stride*d_y + (dest_x << 2);
@@ -1001,17 +986,14 @@ void BB_blit_to_BB32(BlitBuffer *src, BlitBuffer *dst,
                         }
                     }
                 } else {
-                    ColorRGB32 *srcptr;
-                    o_y = offs_y;
-                    for (d_y = dest_y; d_y < dest_y + h; d_y++) {
-                        o_x = offs_x;
-                        for (d_x = dest_x; d_x < dest_x + w; d_x++) {
+                    for (int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                        for (int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                            ColorRGB32 *dstptr;
                             BB_GET_PIXEL(dst, dbb_rotation, ColorRGB32, d_x, d_y, &dstptr);
+                            ColorRGB32 *srcptr;
                             BB_GET_PIXEL(src, sbb_rotation, ColorRGB32, o_x, o_y, &srcptr);
                             *dstptr = *srcptr;
-                            o_x += 1;
                         }
-                        o_y += 1;
                     }
                 }
             }
