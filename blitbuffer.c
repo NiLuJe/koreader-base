@@ -800,7 +800,7 @@ void BB_blit_to_BB16(BlitBuffer *src, BlitBuffer *dst,
                     for (int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
                         ColorRGB16 *dstptr;
                         BB_GET_PIXEL(dst, dbb_rotation, ColorRGB16, d_x, d_y, &dstptr);
-                        ColorRGB24 *srcptr;
+                        ColorRGB32 *srcptr;
                         BB_GET_PIXEL(src, sbb_rotation, ColorRGB32, o_x, o_y, &srcptr);
                         dstptr->v = RGB_To_RGB16(srcptr->r, srcptr->g, srcptr->b);
                     }
