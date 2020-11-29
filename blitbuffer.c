@@ -520,7 +520,7 @@ void BB_blit_to_BB8(BlitBuffer *src, BlitBuffer *dst,
 // NOTE: As the references imply, this is straight from ImageMagick,
 //       with only minor simplifications to enforce Q8 & avoid fp maths.
 static uint8_t
-    dither_o8x8(int x, int y, uint8_t v)
+    dither_o8x8(unsigned int x, unsigned int y, uint8_t v)
 {
     // c.f., https://github.com/ImageMagick/ImageMagick/blob/ecfeac404e75f304004f0566557848c53030bad6/config/thresholds.xml#L107
     static const uint8_t threshold_map_o8x8[] = { 1,  49, 13, 61, 4,  52, 16, 64, 33, 17, 45, 29, 36, 20, 48, 32,
@@ -538,15 +538,15 @@ static uint8_t
     //       With a Q8 input value, we're at no risk of ever underflowing, so, keep to unsigned maths.
     //       Technically, an uint16_t would be wide enough, but it gains us nothing,
     //       and requires a few explicit casts to make GCC happy ;).
-    uint32_t t = DIV_255(v * ((15U << 6) + 1U));
+    uint32_t t = DIV_255(v * ((15U << 6U) + 1U));
     // level = t / (D-1);
-    uint32_t l = (t >> 6);
+    uint32_t l = (t >> 6U);
     // t -= l * (D-1);
-    t = (t - (l << 6));
+    t = (t - (l << 6U));
 
     // map width & height = 8
     // c = ClampToQuantum((l+(t >= map[(x % mw) + mw * (y % mh)])) * QuantumRange / (L-1));
-    uint32_t q = ((l + (t >= threshold_map_o8x8[(x & 7U) + 8U * (y & 7U)])) * 17);
+    uint32_t q = ((l + (t >= threshold_map_o8x8[(x & 7U) + 8U * (y & 7U)])) * 17U);
     // NOTE: We're doing unsigned maths, so, clamping is basically MIN(q, UINT8_MAX) ;).
     //       The only overflow we should ever catch should be for a few white (v = 0xFF) input pixels
     //       that get shifted to the next step (i.e., q = 272 (0xFF + 17)).
