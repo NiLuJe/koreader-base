@@ -19,6 +19,7 @@
 #ifndef _BLITBUFFER_H
 #define _BLITBUFFER_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct Color8 {
