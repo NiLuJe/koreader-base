@@ -834,7 +834,7 @@ void BB_blit_to_BB24(BlitBuffer *src, BlitBuffer *dst,
         case TYPE_BB8A:
             {
                 for (int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
-                    for (int d_x = dest_x, offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                    for (int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
                         ColorRGB24 *dstptr;
                         BB_GET_PIXEL(dst, dbb_rotation, ColorRGB24, d_x, d_y, &dstptr);
                         Color8A *srcptr;
