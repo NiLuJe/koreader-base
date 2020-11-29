@@ -696,7 +696,7 @@ void BB_blit_to_BB16(BlitBuffer *src, BlitBuffer *dst,
                     BB_GET_PIXEL(src, sbb_rotation, Color8, o_x, o_y, &srcptr);
                     const uint8_t v = srcptr->a;
                     const uint8_t v5bit = v >> 3U;
-                    dstptr->v = (v5bit << 11U) + ((v & 0xFC) << 3U) + v5bit;
+                    dstptr->v = (uint16_t) ((v5bit << 11U) + ((v & 0xFC) << 3U) + v5bit);
                 }
             }
             break;
@@ -709,7 +709,7 @@ void BB_blit_to_BB16(BlitBuffer *src, BlitBuffer *dst,
                     BB_GET_PIXEL(src, sbb_rotation, Color8A, o_x, o_y, &srcptr);
                     const uint8_t v = srcptr->a;
                     const uint8_t v5bit = v >> 3U;
-                    dstptr->v = (v5bit << 11U) + ((v & 0xFC) << 3U) + v5bit;
+                    dstptr->v = (uint16_t) ((v5bit << 11U) + ((v & 0xFC) << 3U) + v5bit);
                 }
             }
             break;
@@ -1771,7 +1771,7 @@ void BB_dither_pmulalpha_blit_from(BlitBuffer *dst, BlitBuffer *src,
                                 const uint8_t ainv = alpha ^ 0xFF;
                                 Color8 *dstptr;
                                 BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
-                                dstptr->a = dither_o8x8(o_x, o_y, DIV_255(dstptr->a * ainv + srcptr->a * 0xFF));
+                                dstptr->a = dither_o8x8(o_x, o_y, (uint8_t) DIV_255(dstptr->a * ainv + srcptr->a * 0xFF));
                             }
                         }
                     }
@@ -1815,7 +1815,7 @@ void BB_dither_pmulalpha_blit_from(BlitBuffer *dst, BlitBuffer *src,
                                 const uint8_t srca = (uint8_t) RGB_To_A(srcptr->r, srcptr->g, srcptr->b);
                                 Color8 *dstptr;
                                 BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
-                                dstptr->a = dither_o8x8(o_x, o_y, DIV_255(dstptr->a * ainv + srca * 0xFF));
+                                dstptr->a = dither_o8x8(o_x, o_y, (uint8_t) DIV_255(dstptr->a * ainv + srca * 0xFF));
                             }
                         }
                     }
