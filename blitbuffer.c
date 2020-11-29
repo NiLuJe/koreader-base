@@ -1284,10 +1284,10 @@ void BB_alpha_blit_from(BlitBuffer *dst, BlitBuffer *src,
                                 dstptr->v = RGB_To_RGB16(srcptr->a, srcptr->a, srcptr->a);
                             } else {
                                 const uint8_t ainv = alpha ^ 0xFF;
-                                const uint8_t dsta = ColorRGB16_To_A(dstptr->v);
-                                const uint8_t bdsta = DIV_255(dsta * ainv + srcptr->a * alpha);
                                 ColorRGB16 *dstptr;
                                 BB_GET_PIXEL(dst, dbb_rotation, ColorRGB16, d_x, d_y, &dstptr);
+                                const uint8_t dsta = ColorRGB16_To_A(dstptr->v);
+                                const uint8_t bdsta = DIV_255(dsta * ainv + srcptr->a * alpha);
                                 dstptr->v = RGB_To_RGB16(bdsta, bdsta, bdsta);
                             }
                         }
@@ -1329,11 +1329,11 @@ void BB_alpha_blit_from(BlitBuffer *dst, BlitBuffer *src,
                                 dstptr->v = RGB_To_RGB16(srcptr->r, srcptr->g, srcptr->b);
                             } else {
                                 const uint8_t ainv = alpha ^ 0xFF;
+                                ColorRGB16 *dstptr;
+                                BB_GET_PIXEL(dst, dbb_rotation, ColorRGB16, d_x, d_y, &dstptr);
                                 const uint8_t r = DIV_255(ColorRGB16_GetR(dstptr->v) * ainv + srcptr->r * alpha);
                                 const uint8_t g = DIV_255(ColorRGB16_GetG(dstptr->v) * ainv + srcptr->g * alpha);
                                 const uint8_t b = DIV_255(ColorRGB16_GetB(dstptr->v) * ainv + srcptr->b * alpha);
-                                ColorRGB16 *dstptr;
-                                BB_GET_PIXEL(dst, dbb_rotation, ColorRGB16, d_x, d_y, &dstptr);
                                 dstptr->v = RGB_To_RGB16(r, g, b);
                             }
                         }
@@ -1399,10 +1399,10 @@ void BB_alpha_blit_from(BlitBuffer *dst, BlitBuffer *src,
                                 //dstptr->alpha = srcptr->alpha;
                             } else {
                                 const uint8_t ainv = alpha ^ 0xFF;
-                                const uint8_t dsta = RGB_To_A(dstptr->r, dstptr->g, dstptr->b);
-                                const uint8_t bdsta = DIV_255(dsta * ainv + srcptr->a * alpha);
                                 ColorRGB32 *dstptr;
                                 BB_GET_PIXEL(dst, dbb_rotation, ColorRGB32, d_x, d_y, &dstptr);
+                                const uint8_t dsta = RGB_To_A(dstptr->r, dstptr->g, dstptr->b);
+                                const uint8_t bdsta = DIV_255(dsta * ainv + srcptr->a * alpha);
                                 dstptr->r = bdsta;
                                 dstptr->g = bdsta;
                                 dstptr->b = bdsta;
