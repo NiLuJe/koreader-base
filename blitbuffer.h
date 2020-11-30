@@ -50,9 +50,9 @@ typedef struct ColorRGB32 {
 
 typedef struct BlitBuffer {
     unsigned int w;
-    unsigned int pixel_stride;   // nb of pixels from the start of a line to the start of next line
+    unsigned int pixel_stride;  // nb of pixels from the start of a line to the start of next line
     unsigned int h;
-    size_t stride;         // nb of bytes from the start of a line to the start of next line
+    size_t stride;              // nb of bytes from the start of a line to the start of next line
     uint8_t * restrict data;
     uint8_t config;
 } BlitBuffer;
