@@ -22,6 +22,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// In C++, restrict is a compiler extension. Choose the syntax supported by GCC, Clang & MSVC.
+#ifdef __cplusplus
+#	define restrict __restrict
+#endif
+
 typedef struct Color8 {
     uint8_t a;
 } Color8;
