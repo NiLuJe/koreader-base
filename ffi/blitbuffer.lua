@@ -1091,7 +1091,7 @@ function BB_mt.__index:alphablitFrom(source, dest_x, dest_y, offs_x, offs_y, wid
         width, dest_x, offs_x = BB.checkBounds(width, dest_x or 0, offs_x or 0, self:getWidth(), source:getWidth())
         height, dest_y, offs_y = BB.checkBounds(height, dest_y or 0, offs_y or 0, self:getHeight(), source:getHeight())
         if width <= 0 or height <= 0 then return end
-        cblitbuffer.BB_alpha_blit_from(P_BlitBuffer, self),
+        cblitbuffer.BB_alpha_blit_from(ffi.cast(P_BlitBuffer, self),
             ffi.cast(P_BlitBuffer_ROData, source),
             dest_x, dest_y, offs_x, offs_y, width, height)
     else
