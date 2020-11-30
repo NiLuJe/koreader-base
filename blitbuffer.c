@@ -423,7 +423,7 @@ void BB_invert_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, un
     }
 }
 
-void BB_blit_to_BB8(BlitBuffer * restrict src, BlitBuffer * restrict dst,
+void BB_blit_to_BB8(const BlitBuffer * restrict src, BlitBuffer * restrict dst,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int sbb_type = GET_BB_TYPE(src);
     const int sbb_rotation = GET_BB_ROTATION(src);
@@ -552,7 +552,7 @@ static uint8_t
     return (q > UINT8_MAX ? UINT8_MAX : (uint8_t) q);
 }
 
-void BB_dither_blit_to_BB8(BlitBuffer * restrict src, BlitBuffer * restrict dst,
+void BB_dither_blit_to_BB8(const BlitBuffer * restrict src, BlitBuffer * restrict dst,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int sbb_type = GET_BB_TYPE(src);
     const int sbb_rotation = GET_BB_ROTATION(src);
@@ -616,7 +616,7 @@ void BB_dither_blit_to_BB8(BlitBuffer * restrict src, BlitBuffer * restrict dst,
     }
 }
 
-void BB_blit_to_BB8A(BlitBuffer * restrict src, BlitBuffer * restrict dst,
+void BB_blit_to_BB8A(const BlitBuffer * restrict src, BlitBuffer * restrict dst,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int sbb_type = GET_BB_TYPE(src);
     const int sbb_rotation = GET_BB_ROTATION(src);
@@ -680,7 +680,7 @@ void BB_blit_to_BB8A(BlitBuffer * restrict src, BlitBuffer * restrict dst,
     }
 }
 
-void BB_blit_to_BB16(BlitBuffer * restrict src, BlitBuffer * restrict dst,
+void BB_blit_to_BB16(const BlitBuffer * restrict src, BlitBuffer * restrict dst,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int sbb_type = GET_BB_TYPE(src);
     const int sbb_rotation = GET_BB_ROTATION(src);
@@ -748,7 +748,7 @@ void BB_blit_to_BB16(BlitBuffer * restrict src, BlitBuffer * restrict dst,
     }
 }
 
-void BB_blit_to_BB24(BlitBuffer * restrict src, BlitBuffer * restrict dst,
+void BB_blit_to_BB24(const BlitBuffer * restrict src, BlitBuffer * restrict dst,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int sbb_type = GET_BB_TYPE(src);
     const int sbb_rotation = GET_BB_ROTATION(src);
@@ -820,7 +820,7 @@ void BB_blit_to_BB24(BlitBuffer * restrict src, BlitBuffer * restrict dst,
     }
 }
 
-void BB_blit_to_BB32(BlitBuffer * restrict src, BlitBuffer * restrict dst,
+void BB_blit_to_BB32(const BlitBuffer * restrict src, BlitBuffer * restrict dst,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int sbb_type = GET_BB_TYPE(src);
     const int sbb_rotation = GET_BB_ROTATION(src);
@@ -919,7 +919,7 @@ void BB_blit_to_BB32(BlitBuffer * restrict src, BlitBuffer * restrict dst,
     }
 }
 
-void BB_blit_to(BlitBuffer * restrict src, BlitBuffer * restrict dst,
+void BB_blit_to(const BlitBuffer * restrict src, BlitBuffer * restrict dst,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int dbb_type = GET_BB_TYPE(dst);
     //fprintf(stdout, "%s: blit from type: %s to: %s\n", __FUNCTION__, get_bbtype_name(GET_BB_TYPE(src)), get_bbtype_name(GET_BB_TYPE(dst)));
@@ -938,7 +938,7 @@ void BB_blit_to(BlitBuffer * restrict src, BlitBuffer * restrict dst,
 }
 
 // Only actually honors dithering when blitting to BB8 ;).
-void BB_dither_blit_to(BlitBuffer * restrict src, BlitBuffer * restrict dst,
+void BB_dither_blit_to(const BlitBuffer * restrict src, BlitBuffer * restrict dst,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int dbb_type = GET_BB_TYPE(dst);
     //fprintf(stdout, "%s: dither blit from type: %s to: %s\n", __FUNCTION__, get_bbtype_name(GET_BB_TYPE(src)), get_bbtype_name(GET_BB_TYPE(dst)));
@@ -956,7 +956,7 @@ void BB_dither_blit_to(BlitBuffer * restrict src, BlitBuffer * restrict dst,
     }
 }
 
-void BB_add_blit_from(BlitBuffer * restrict dst, BlitBuffer * restrict src,
+void BB_add_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict src,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h,
         uint8_t alpha) {
     // fast paths
@@ -1043,7 +1043,7 @@ void BB_add_blit_from(BlitBuffer * restrict dst, BlitBuffer * restrict src,
     }
 }
 
-void BB_alpha_blit_from(BlitBuffer * restrict dst, BlitBuffer * restrict src,
+void BB_alpha_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict src,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int dbb_type = GET_BB_TYPE(dst);
     const int sbb_type = GET_BB_TYPE(src);
@@ -1389,7 +1389,7 @@ void BB_alpha_blit_from(BlitBuffer * restrict dst, BlitBuffer * restrict src,
 // NOTE: Keep in sync w/ BB_alpha_blit_from!
 //       The only functional change being that, when actually alpha-blending, src * alpha becomes src * 0xFF
 //       Duplicating 350 LOC for that feels awesome! But saves a deeply nested branch in a pixel loop, which would be bad.
-void BB_pmulalpha_blit_from(BlitBuffer * restrict dst, BlitBuffer * restrict src,
+void BB_pmulalpha_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict src,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int dbb_type = GET_BB_TYPE(dst);
     const int sbb_type = GET_BB_TYPE(src);
@@ -1734,7 +1734,7 @@ void BB_pmulalpha_blit_from(BlitBuffer * restrict dst, BlitBuffer * restrict src
 
 // NOTE: Keep in sync w/ BB_pmulalpha_blit_from!
 //       Dithering is only honored for BB8 dbb ;).
-void BB_dither_pmulalpha_blit_from(BlitBuffer * restrict dst, BlitBuffer * restrict src,
+void BB_dither_pmulalpha_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict src,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int dbb_type = GET_BB_TYPE(dst);
     const int sbb_type = GET_BB_TYPE(src);
@@ -1905,7 +1905,7 @@ void BB_invert_blit_from(BlitBuffer *dst, BlitBuffer *src,
     }
 }
 
-void BB_color_blit_from(BlitBuffer * restrict dst, BlitBuffer * restrict src,
+void BB_color_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict src,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h, Color8A * restrict color) {
     const int dbb_type = GET_BB_TYPE(dst);
     const int sbb_type = GET_BB_TYPE(src);
