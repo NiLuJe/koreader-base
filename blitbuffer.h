@@ -129,8 +129,7 @@ void BB_pmulalpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restr
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
 void BB_dither_pmulalpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
-// NOTE: Cannot use restricted pointers here, BB:invertRect does self:invertblitFrom(self, ...)
-void BB_invert_blit_from(BlitBuffer *dest, BlitBuffer *source, unsigned int dest_x, unsigned int dest_y,
+void BB_invert_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                          unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
 void BB_color_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h, Color8A * restrict color);

@@ -131,8 +131,7 @@ void BB_pmulalpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restr
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
 void BB_dither_pmulalpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
-// NOTE: Cannot use restricted pointers here, BB:invertRect does self:invertblitFrom(self, ...)
-void BB_invert_blit_from(BlitBuffer *dest, BlitBuffer *source, unsigned int dest_x, unsigned int dest_y,
+void BB_invert_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                          unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
 void BB_color_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h, Color8A * restrict color);
@@ -1149,9 +1148,8 @@ function BB_mt.__index:invertblitFrom(source, dest_x, dest_y, offs_x, offs_y, wi
         width, dest_x, offs_x = BB.checkBounds(width, dest_x or 0, offs_x or 0, self:getWidth(), source:getWidth())
         height, dest_y, offs_y = BB.checkBounds(height, dest_y or 0, offs_y or 0, self:getHeight(), source:getHeight())
         if width <= 0 or height <= 0 then return end
-        -- NOTE: source is not const! see note in "blitbuffer.h"
         cblitbuffer.BB_invert_blit_from(ffi.cast(P_BlitBuffer, self),
-            ffi.cast(P_BlitBuffer, source),
+            ffi.cast(P_BlitBuffer_ROData, source),
             dest_x, dest_y, offs_x, offs_y, width, height)
     else
         self:blitFrom(source, dest_x, dest_y, offs_x, offs_y, width, height, self.setPixelInverted)
@@ -1247,10 +1245,6 @@ invert a rectangle within the buffer
 @param h height
 --]]
 function BB_mt.__index:invertRect(x, y, w, h)
-    self:invertblitFrom(self, x, y, x, y, w, h)
-end
-
-function BB_mt.__index:invertRect(x, y, w, h)
     w, x = BB.checkBounds(w, x, 0, self:getWidth(), 0xFFFF)
     h, y = BB.checkBounds(h, y, 0, self:getHeight(), 0xFFFF)
     if w <= 0 or h <= 0 then return end
@@ -1285,6 +1279,12 @@ function BB_mt.__index:invertRect(x, y, w, h)
                     p[0] = bxor(p[0], 0xFFFF)
                     p = p+1
                 end
+            elseif bbtype == TYPE_BB8A then
+                local p = ffi.cast(uint16pt, ffi.cast(uint8pt, self.data) + self.stride*y)
+                for i = 1, self.pixel_stride*h do
+                    p[0] = bxor(p[0], 0x00FF)
+                    p = p+1
+                end
             else
                 -- Should only be BB8 left, but honor bpp for safety instead of relying purely on pointer arithmetics...
                 local p = ffi.cast(uint8pt, self.data) + self.stride*y
@@ -1312,6 +1312,14 @@ function BB_mt.__index:invertRect(x, y, w, h)
                         p = p+1
                     end
                 end
+            elseif bbtype == TYPE_BB8A then
+                for j = y, y+h-1 do
+                    local p = ffi.cast(uint16pt, ffi.cast(uint8pt, self.data) + self.stride*j) + x
+                    for i = 0, w-1 do
+                        p[0] = bxor(p[0], 0x00FF)
+                        p = p+1
+                    end
+                end
             else
                 -- Again, honor bpp for safety instead of relying purely on pointer arithmetics...
                 for j = y, y+h-1 do
@@ -1326,12 +1334,8 @@ function BB_mt.__index:invertRect(x, y, w, h)
     end
 end
 
--- No fast paths for BB4 & BB8A
+-- No fast paths for BB4
 function BB4_mt.__index:invertRect(x, y, w, h)
-    self:invertblitFrom(self, x, y, x, y, w, h)
-end
-
-function BB8A_mt.__index:invertRect(x, y, w, h)
     self:invertblitFrom(self, x, y, x, y, w, h)
 end
 

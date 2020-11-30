@@ -1831,8 +1831,7 @@ void BB_dither_pmulalpha_blit_from(BlitBuffer * restrict dst, const BlitBuffer *
     }
 }
 
-// NOTE: Cannot use restricted pointers here (c.f., "blitbuffer.h")
-void BB_invert_blit_from(BlitBuffer *dst, BlitBuffer *src,
+void BB_invert_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict src,
         unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
     const int dbb_type = GET_BB_TYPE(dst);
     const int sbb_type = GET_BB_TYPE(src);
@@ -1847,9 +1846,9 @@ void BB_invert_blit_from(BlitBuffer *dst, BlitBuffer *src,
         case TYPE_BB8:
             for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
                 for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
-                    Color8 *dstptr;
+                    Color8 * restrict dstptr;
                     BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
-                    Color8 *srcptr;
+                    const Color8 * restrict srcptr;
                     BB_GET_PIXEL(src, sbb_rotation, Color8, o_x, o_y, &srcptr);
                     dstptr->a = srcptr->a ^ 0xFF;
                 }
@@ -1858,9 +1857,9 @@ void BB_invert_blit_from(BlitBuffer *dst, BlitBuffer *src,
         case TYPE_BB8A:
             for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
                 for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
-                    Color8A *dstptr;
+                    Color8A * restrict dstptr;
                     BB_GET_PIXEL(dst, dbb_rotation, Color8A, d_x, d_y, &dstptr);
-                    Color8A *srcptr;
+                    const Color8A *srcptr;
                     BB_GET_PIXEL(src, sbb_rotation, Color8A, o_x, o_y, &srcptr);
                     dstptr->a = srcptr->a ^ 0xFF;
                 }
@@ -1870,9 +1869,9 @@ void BB_invert_blit_from(BlitBuffer *dst, BlitBuffer *src,
             // NOTE: Much like BB_invert_rect, innacurate
             for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
                 for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
-                    ColorRGB16 *dstptr;
+                    ColorRGB16 * restrict dstptr;
                     BB_GET_PIXEL(dst, dbb_rotation, ColorRGB16, d_x, d_y, &dstptr);
-                    ColorRGB16 *srcptr;
+                    const ColorRGB16 * restrict srcptr;
                     BB_GET_PIXEL(src, sbb_rotation, ColorRGB16, o_x, o_y, &srcptr);
                     dstptr->v = srcptr->v ^ 0xFFFF;
                 }
@@ -1881,9 +1880,9 @@ void BB_invert_blit_from(BlitBuffer *dst, BlitBuffer *src,
         case TYPE_BBRGB24:
             for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
                 for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
-                    ColorRGB24 *dstptr;
+                    ColorRGB24 * restrict dstptr;
                     BB_GET_PIXEL(dst, dbb_rotation, ColorRGB24, d_x, d_y, &dstptr);
-                    ColorRGB24 *srcptr;
+                    const ColorRGB24 * restrict srcptr;
                     BB_GET_PIXEL(src, sbb_rotation, ColorRGB24, o_x, o_y, &srcptr);
                     dstptr->r = srcptr->r ^ 0xFF;
                     dstptr->g = srcptr->g ^ 0xFF;
@@ -1894,9 +1893,9 @@ void BB_invert_blit_from(BlitBuffer *dst, BlitBuffer *src,
         case TYPE_BBRGB32:
             for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
                 for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
-                    ColorRGB32 *dstptr;
+                    ColorRGB32 * restrict dstptr;
                     BB_GET_PIXEL(dst, dbb_rotation, ColorRGB32, d_x, d_y, &dstptr);
-                    ColorRGB32 *srcptr;
+                    const ColorRGB32 * restrict srcptr;
                     BB_GET_PIXEL(src, sbb_rotation, ColorRGB32, o_x, o_y, &srcptr);
                     *(uint32_t*) dstptr = *(uint32_t*) srcptr ^ 0x00FFFFFF;
                 }
