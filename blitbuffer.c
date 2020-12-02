@@ -344,7 +344,7 @@ void BB_invert_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, un
                 // Pixel per pixel
                 //fprintf(stdout, "%s: Pixel BB8A invertRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    uint16_t * restrict p = (uint16_t*) (bb->data + bb->stride*j + (rx << 1U));
+                    uint16_t * restrict p = (uint16_t*) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ ^= 0x00FF;
@@ -366,7 +366,7 @@ void BB_invert_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, un
                 // Pixel per pixel
                 //fprintf(stdout, "%s: Pixel BBRGB16 invertRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    uint16_t * restrict p = (uint16_t*) (bb->data + bb->stride*j + (rx << 1U));
+                    uint16_t * restrict p = (uint16_t*) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ ^= 0xFFFF;
@@ -412,7 +412,7 @@ void BB_invert_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, un
                 // Pixel per pixel
                 //fprintf(stdout, "%s: Pixel BBRGB32 invertRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    uint32_t * restrict p = (uint32_t*) (bb->data + bb->stride*j + (rx << 2U));
+                    uint32_t * restrict p = (uint32_t*) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ ^= 0x00FFFFFF;
