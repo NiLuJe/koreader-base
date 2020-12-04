@@ -1883,12 +1883,12 @@ function BB_mt.__index:getBufferData()
     local w, h = self:getWidth(), self:getHeight()
     local bbdump, source_ptr, stride
     if self:getType() == BB.TYPE_BBRGB24 then
-        source_ptr = ffi.cast("unsigned char*", self.data)
+        source_ptr = ffi.cast(uint8pt, self.data)
         stride = self.stride
     else
         bbdump = BB.new(w, h, BB.TYPE_BBRGB24, nil)
         bbdump:blitFrom(self)
-        source_ptr = ffi.cast("unsigned char*", bbdump.data)
+        source_ptr = ffi.cast(uint8pt, bbdump.data)
         stride = bbdump.stride
     end
     return bbdump, source_ptr, w, stride, h
@@ -1992,7 +1992,7 @@ function BB_mt.__index:writeBMP1(filename)
 
     assert(filesize == target_pos, "Cover image: internal error:  filesize=" .. filesize .. " target_pos=" .. target_pos)
 
-    local fhandle = C.open(filename, C.O_WRONLY + C.O_CREAT + C.O_TRUNC, C.I_IRUSR + C.I_IWUSR)
+    local fhandle = C.open(filename, bor(C.O_WRONLY, C.O_CREAT, C.O_TRUNC), bor(C.I_IRUSR, C.I_IWUSR))
     if fhandle > 0 then
         C.write(fhandle, target_ptr, filesize)
         C.close(fhandle)
