@@ -117,10 +117,11 @@ $(OUTPUT_DIR)/libs/libkoreader-input.so: input/*.c input/*.h $(if $(KINDLE),$(PO
 		$(if $(KINDLE),$(POPEN_NOSHELL_LIB),) \
 		$(if $(POCKETBOOK),-linkview,)
 
+# Would need a bit of patching to be able to use -fvisibility=hidden...
 $(OUTPUT_DIR)/libs/libkoreader-lfs.so: \
 			$(if $(USE_LUAJIT_LIB),$(LUAJIT_LIB),) \
 			luafilesystem/src/lfs.c
-	$(CC) $(DYNLIB_CFLAGS) $(SYMVIS_FLAGS) -o $@ $^
+	$(CC) $(DYNLIB_CFLAGS) -o $@ $^
 ifdef DARWIN
 	install_name_tool -change \
 		`otool -L "$@" | grep "libluajit" | awk '{print $$1}'` \
