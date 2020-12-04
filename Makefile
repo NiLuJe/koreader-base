@@ -217,15 +217,6 @@ endif
 $(OUTPUT_DIR)/libs/libXss.so.1: libxss-dummy.c
 	$(CC) $(DYNLIB_CFLAGS) -o $@ $^
 
-ffi/mupdf_h.lua: ffi-cdecl/mupdf_decl.c $(MUPDF_DIR)/include
-	CPPFLAGS="$(CFLAGS) -I. -I$(MUPDF_DIR)/include" $(FFI_CDECL) gcc ffi-cdecl/mupdf_decl.c $@
-
-ffi/SDL2_0_h.lua: ffi-cdecl/SDL2_0_decl.c
-	CPPFLAGS="$(CFLAGS) -I. -LSDL2" $(FFI_CDECL) gcc ffi-cdecl/SDL2_0_decl.c $@
-
-ffi/lodepng_h.lua: ffi-cdecl/lodepng_decl.c $(LODEPNG_DIR)
-	CPPFLAGS="$(CFLAGS) -I. -I$(LODEPNG_DIR)" $(FFI_CDECL) gcc ffi-cdecl/lodepng_decl.c $@
-
 # include all third party libs
 include Makefile.third
 
