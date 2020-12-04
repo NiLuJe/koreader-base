@@ -22,19 +22,6 @@
 #include <string.h>
 #include "blitbuffer.h"
 
-#define MASK_INVERSE 0x02
-#define SHIFT_INVERSE 1
-#define MASK_ROTATED 0x0C
-#define SHIFT_ROTATED 2
-#define MASK_TYPE 0xF0
-#define SHIFT_TYPE 4
-#define TYPE_BB4 0
-#define TYPE_BB8 1
-#define TYPE_BB8A 2
-#define TYPE_BBRGB16 3
-#define TYPE_BBRGB24 4
-#define TYPE_BBRGB32 5
-
 static const char*
     get_bbtype_name(int bbtype)
 {
@@ -55,10 +42,6 @@ static const char*
             return "Unknown!";
     }
 }
-
-#define GET_BB_INVERSE(bb) ((MASK_INVERSE & bb->config) >> SHIFT_INVERSE)
-#define GET_BB_ROTATION(bb) ((MASK_ROTATED & bb->config) >> SHIFT_ROTATED)
-#define GET_BB_TYPE(bb) (((MASK_TYPE & bb->config) >> SHIFT_TYPE))
 
 #define ColorRGB32_To_Color8(color) \
     (Color8){(4898U*color->r + 9618U*color->g + 1869U*color->b) >> 14U}
