@@ -265,6 +265,8 @@ distclean:
 	-rm -rf build
 	-rm -rf $(THIRDPARTY_DIR)/{$(CMAKE_THIRDPARTY_LIBS)}/build
 
+dist-clean: distclean
+
 # ===========================================================================
 # start of unit tests section
 
