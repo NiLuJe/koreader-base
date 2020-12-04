@@ -106,7 +106,7 @@ libs: \
 	$(OUTPUT_DIR)/libs/libwrap-mupdf.so
 
 $(OUTPUT_DIR)/libs/libinkview-compat.so: input/inkview-compat.c
-	$(CC) $(DYNLIB_CFLAGS) $(SYMVIS_FLAGS) -linkview -o $@ $<
+	$(CC) $(DYNLIB_CFLAGS) -linkview -o $@ $<
 
 $(OUTPUT_DIR)/libs/libkoreader-input.so: input/*.c input/*.h $(if $(KINDLE),$(POPEN_NOSHELL_LIB),)
 	@echo "Building koreader input module..."
@@ -120,7 +120,7 @@ $(OUTPUT_DIR)/libs/libkoreader-input.so: input/*.c input/*.h $(if $(KINDLE),$(PO
 $(OUTPUT_DIR)/libs/libkoreader-lfs.so: \
 			$(if $(USE_LUAJIT_LIB),$(LUAJIT_LIB),) \
 			luafilesystem/src/lfs.c
-	$(CC) $(DYNLIB_CFLAGS) $(SYMVIS_FLAGS) -o $@ $^
+	$(CC) $(DYNLIB_CFLAGS) -DLFS_EXPORT='__attribute__((visibility("default")))' $(SYMVIS_FLAGS) -o $@ $^
 ifdef DARWIN
 	install_name_tool -change \
 		`otool -L "$@" | grep "libluajit" | awk '{print $$1}'` \
