@@ -1387,6 +1387,105 @@ void BB_alpha_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict s
 }
 
 // NOTE: Keep in sync w/ BB_alpha_blit_from!
+//       Dithering is only honored for BB8 dbb ;).
+void BB_dither_alpha_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict src,
+        unsigned int dest_x, unsigned int dest_y, unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h) {
+    const int dbb_type = GET_BB_TYPE(dst);
+    const int sbb_type = GET_BB_TYPE(src);
+    const int sbb_rotation = GET_BB_ROTATION(src);
+    const int dbb_rotation = GET_BB_ROTATION(dst);
+    switch (dbb_type) {
+        case TYPE_BB8:
+            switch (sbb_type) {
+                case TYPE_BB8:
+                    for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                        for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                            Color8 * restrict dstptr;
+                            BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
+                            const Color8 * restrict srcptr;
+                            BB_GET_PIXEL(src, sbb_rotation, Color8, o_x, o_y, &srcptr);
+                            dstptr->a = dither_o8x8(o_x, o_y, srcptr->a);
+                        }
+                    }
+                    break;
+                case TYPE_BB8A:
+                    for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                        for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                            const Color8A * restrict srcptr;
+                            BB_GET_PIXEL(src, sbb_rotation, Color8A, o_x, o_y, &srcptr);
+                            const uint8_t alpha = srcptr->alpha;
+                            if (alpha == 0) {
+                                // NOP
+                            } else if (alpha == 0xFF) {
+                                Color8 * restrict dstptr;
+                                BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
+                                dstptr->a = dither_o8x8(o_x, o_y, srcptr->a);
+                            } else {
+                                const uint8_t ainv = alpha ^ 0xFF;
+                                Color8 * restrict dstptr;
+                                BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
+                                dstptr->a = dither_o8x8(o_x, o_y, (uint8_t) DIV_255(dstptr->a * ainv + srcptr->a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case TYPE_BBRGB16:
+                    for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                        for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                            Color8 * restrict dstptr;
+                            BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
+                            const ColorRGB16 * restrict srcptr;
+                            BB_GET_PIXEL(src, sbb_rotation, ColorRGB16, o_x, o_y, &srcptr);
+                            dstptr->a = dither_o8x8(o_x, o_y, (uint8_t) ColorRGB16_To_A(srcptr->v));
+                        }
+                    }
+                    break;
+                case TYPE_BBRGB24:
+                    for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                        for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                            Color8 * restrict dstptr;
+                            BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
+                            const ColorRGB24 * restrict srcptr;
+                            BB_GET_PIXEL(src, sbb_rotation, ColorRGB24, o_x, o_y, &srcptr);
+                            dstptr->a = dither_o8x8(o_x, o_y, (uint8_t) RGB_To_A(srcptr->r, srcptr->g, srcptr->b));
+                        }
+                    }
+                    break;
+                case TYPE_BBRGB32:
+                    for (unsigned int d_y = dest_y, o_y = offs_y; d_y < dest_y + h; d_y++, o_y++) {
+                        for (unsigned int d_x = dest_x, o_x = offs_x; d_x < dest_x + w; d_x++, o_x++) {
+                            const ColorRGB32 * restrict srcptr;
+                            BB_GET_PIXEL(src, sbb_rotation, ColorRGB32, o_x, o_y, &srcptr);
+                            const uint8_t alpha = srcptr->alpha;
+                            if (alpha == 0) {
+                                // NOP
+                            } else if (alpha == 0xFF) {
+                                Color8 * restrict dstptr;
+                                BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
+                                dstptr->a = dither_o8x8(o_x, o_y, (uint8_t) RGB_To_A(srcptr->r, srcptr->g, srcptr->b));
+                            } else {
+                                const uint8_t ainv = alpha ^ 0xFF;
+                                const uint8_t srca = (uint8_t) RGB_To_A(srcptr->r, srcptr->g, srcptr->b);
+                                Color8 * restrict dstptr;
+                                BB_GET_PIXEL(dst, dbb_rotation, Color8, d_x, d_y, &dstptr);
+                                dstptr->a = dither_o8x8(o_x, o_y, (uint8_t) DIV_255(dstptr->a * ainv + srca * alpha));
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    fprintf(stderr, "%s: incompatible bb (dst: BB8, src: %s) in file %s, line %d!\n",
+                            __FUNCTION__, get_bbtype_name(sbb_type), __FILE__, __LINE__);
+                    exit(1);
+                    break;
+            }
+            break;
+        default:
+            return BB_alpha_blit_from(dst, src, dest_x, dest_y, offs_x, offs_y, w, h);
+    }
+}
+
+// NOTE: Keep in sync w/ BB_alpha_blit_from!
 //       The only functional change being that, when actually alpha-blending, src * alpha becomes src * 0xFF
 //       Duplicating 350 LOC for that feels awesome! But saves a deeply nested branch in a pixel loop, which would be bad.
 void BB_pmulalpha_blit_from(BlitBuffer * restrict dst, const BlitBuffer * restrict src,

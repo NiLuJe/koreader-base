@@ -127,6 +127,8 @@ void BB_add_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict so
                       unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h, uint8_t alpha);
 void BB_alpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
+void BB_dither_alpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
+                        unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
 void BB_pmulalpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
 void BB_dither_pmulalpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
@@ -255,7 +257,7 @@ local function dither_o8x8(x, y, v)
     return c
 end
 
--- alpha blending (8bit alpha value)
+-- Straight alpha blending (8bit alpha value)
 function Color4L_mt.__index:blend(color, coverage)
     local alpha = coverage or color:getAlpha()
     -- simplified: we expect a 8bit grayscale "color" as parameter
@@ -298,7 +300,15 @@ function ColorRGB32_mt.__index:blend(color, coverage)
     local b = div255(self:getB() * ainv + color:getB() * alpha)
     self:set(ColorRGB32(r, g, b, self:getAlpha()))
 end
--- alpha blending with a premultiplied input (i.e., color OVER self, w/ color being premultiplied)
+-- And the BB8 version of the same that dithers the result...
+function Color8_mt.__index:ditherblend(x, y, color)
+    local alpha = color:getAlpha()
+    -- simplified: we expect a 8bit grayscale "color" as parameter
+    local value = div255(self.a * bxor(alpha, 0xFF) + color:getR() * alpha)
+    value = dither_o8x8(x, y, value)
+    self:set(Color8(value))
+end
+-- Alpha blending with a premultiplied input (i.e., color OVER self, w/ color being premultiplied)
 function Color4L_mt.__index:pmulblend(color)
     local alpha = color:getAlpha()
     -- simplified: we expect a 8bit grayscale "color" as parameter
@@ -788,7 +798,7 @@ function BBRGB16_mt.__index:setPixelAdd(x, y, color, alpha)
 end
 BBRGB24_mt.__index.setPixelAdd = BBRGB16_mt.__index.setPixelAdd
 BBRGB32_mt.__index.setPixelAdd = BBRGB16_mt.__index.setPixelAdd
--- Alpha blending
+-- Straight alpha blending
 function BB_mt.__index:setPixelBlend(x, y, color)
     -- fast path:
     local alpha = color:getAlpha()
@@ -821,6 +831,26 @@ function BBRGB16_mt.__index:setPixelBlend(x, y, color)
 end
 BBRGB24_mt.__index.setPixelBlend = BBRGB16_mt.__index.setPixelBlend
 BBRGB32_mt.__index.setPixelBlend = BBRGB16_mt.__index.setPixelBlend
+-- Straight alpha blending + dithering (dithering applied on BB8 only)
+function BB8_mt.__index:setPixelDitherBlend(x, y, color)
+    -- fast path:
+    local alpha = color:getAlpha()
+    if alpha == 0 then
+        return
+    end
+    local px, py = self:getPhysicalCoordinates(x, y)
+    if alpha == 0xFF then
+        color = color:getColor8()
+        color.a = dither_o8x8(x, y, color.a)
+        self:getPixelP(px, py)[0]:set(color)
+    else
+        -- The blend method for these types of target BB assumes a grayscale input
+        color = color:getColor8A()
+        if self:getInverse() == 1 then color = color:invert() end
+        self:getPixelP(px, py)[0]:ditherblend(x, y, color)
+    end
+end
+BB_mt.__index.setPixelDitherBlend = BB_mt.__index.setPixelBlend
 -- Premultiplied alpha blending
 function BB_mt.__index:setPixelPmulBlend(x, y, color)
     -- fast path:
@@ -1095,6 +1125,20 @@ function BB_mt.__index:alphablitFrom(source, dest_x, dest_y, offs_x, offs_y, wid
             dest_x, dest_y, offs_x, offs_y, width, height)
     else
         self:blitFrom(source, dest_x, dest_y, offs_x, offs_y, width, height, self.setPixelBlend)
+    end
+end
+-- straight alpha w/ dithering (dithering only if target is BB8)
+function BB_mt.__index:ditheralphablitFrom(source, dest_x, dest_y, offs_x, offs_y, width, height)
+    if self:canUseCbbTogether(source) then
+        width, height = width or source:getWidth(), height or source:getHeight()
+        width, dest_x, offs_x = BB.checkBounds(width, dest_x or 0, offs_x or 0, self:getWidth(), source:getWidth())
+        height, dest_y, offs_y = BB.checkBounds(height, dest_y or 0, offs_y or 0, self:getHeight(), source:getHeight())
+        if width <= 0 or height <= 0 then return end
+        cblitbuffer.BB_dither_alpha_blit_from(ffi.cast(P_BlitBuffer, self),
+            ffi.cast(P_BlitBuffer_ROData, source),
+            dest_x, dest_y, offs_x, offs_y, width, height)
+    else
+        self:blitFrom(source, dest_x, dest_y, offs_x, offs_y, width, height, self.setPixelDitherBlend)
     end
 end
 -- premultiplied alpha

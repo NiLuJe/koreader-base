@@ -130,6 +130,8 @@ void BB_add_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict so
                       unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h, uint8_t alpha);
 void BB_alpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
+void BB_dither_alpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
+                        unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
 void BB_pmulalpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
                         unsigned int offs_x, unsigned int offs_y, unsigned int w, unsigned int h);
 void BB_dither_pmulalpha_blit_from(BlitBuffer * restrict dest, const BlitBuffer * restrict source, unsigned int dest_x, unsigned int dest_y,
