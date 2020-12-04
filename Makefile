@@ -106,11 +106,11 @@ libs: \
 	$(OUTPUT_DIR)/libs/libwrap-mupdf.so
 
 $(OUTPUT_DIR)/libs/libinkview-compat.so: input/inkview-compat.c
-	$(CC) $(DYNLIB_CFLAGS) -linkview -o $@ $<
+	$(CC) $(DYNLIB_CFLAGS) $(SYMVIS_FLAGS) -linkview -o $@ $<
 
 $(OUTPUT_DIR)/libs/libkoreader-input.so: input/*.c input/*.h $(if $(KINDLE),$(POPEN_NOSHELL_LIB),)
 	@echo "Building koreader input module..."
-	$(CC) $(DYNLIB_CFLAGS) -I$(POPEN_NOSHELL_DIR) -I./input \
+	$(CC) $(DYNLIB_CFLAGS) $(SYMVIS_FLAGS) -I$(POPEN_NOSHELL_DIR) -I./input \
 		$(if $(CERVANTES),-DCERVANTES,) $(if $(KOBO),-DKOBO,) $(if $(KINDLE),-DKINDLE,) $(if $(POCKETBOOK),-DPOCKETBOOK,) $(if $(REMARKABLE),-DREMARKABLE,) $(if $(SONY_PRSTUX),-DSONY_PRSTUX,)\
 		-o $@ \
 		input/input.c \
@@ -120,7 +120,7 @@ $(OUTPUT_DIR)/libs/libkoreader-input.so: input/*.c input/*.h $(if $(KINDLE),$(PO
 $(OUTPUT_DIR)/libs/libkoreader-lfs.so: \
 			$(if $(USE_LUAJIT_LIB),$(LUAJIT_LIB),) \
 			luafilesystem/src/lfs.c
-	$(CC) $(DYNLIB_CFLAGS) -o $@ $^
+	$(CC) $(DYNLIB_CFLAGS) $(SYMVIS_FLAGS) -o $@ $^
 ifdef DARWIN
 	install_name_tool -change \
 		`otool -L "$@" | grep "libluajit" | awk '{print $$1}'` \
@@ -134,7 +134,7 @@ $(OUTPUT_DIR)/libs/libkoreader-djvu.so: djvu.c \
 			$(if $(USE_LUAJIT_LIB),$(LUAJIT_LIB),) \
 			$(DJVULIBRE_LIB) $(K2PDFOPT_LIB)
 	$(CC) -I$(DJVULIBRE_DIR) -I$(MUPDF_DIR)/include $(K2PDFOPT_CFLAGS) \
-		$(DYNLIB_CFLAGS) -o $@ $^ $(if $(ANDROID),,-lpthread)
+		$(DYNLIB_CFLAGS) $(SYMVIS_FLAGS) -o $@ $^ $(if $(ANDROID),,-lpthread)
 ifdef DARWIN
 	install_name_tool -change \
 		`otool -L "$@" | grep "libluajit" | awk '{print $$1}'` \
@@ -155,7 +155,7 @@ $(OUTPUT_DIR)/libs/libkoreader-cre.so: cre.cpp \
 			$(CRENGINE_LIB)
 	$(CXX) -I$(CRENGINE_SRC_DIR)/crengine/include/ $(DYNLIB_CXXFLAGS) \
 		-DLDOM_USE_OWN_MEM_MAN=$(if $(WIN32),0,1) \
-		$(if $(WIN32),-DQT_GL=1) -static-libstdc++ -o $@ $^
+		$(if $(WIN32),-DQT_GL=1) $(SYMVIS_FLAGS) -static-libstdc++ -o $@ $^
 ifdef DARWIN
 	install_name_tool -change \
 		`otool -L "$@" | grep "libluajit" | awk '{print $$1}'` \
@@ -174,7 +174,7 @@ $(OUTPUT_DIR)/libs/libkoreader-xtext.so: xtext.cpp \
 	-I$(HARFBUZZ_DIR)/include/harfbuzz \
 	-I$(FRIBIDI_DIR)/include \
 	-I$(LIBUNIBREAK_DIR)/include \
-	$(DYNLIB_CXXFLAGS) -static-libstdc++ -Wall -o $@ $^
+	$(DYNLIB_CXXFLAGS) $(SYMVIS_FLAGS) -static-libstdc++ -Wall -o $@ $^
 ifdef DARWIN
 	install_name_tool -change \
 		`otool -L "$@" | grep "libluajit" | awk '{print $$1}'` \
@@ -203,11 +203,11 @@ ifdef DARWIN
 endif
 
 $(OUTPUT_DIR)/libs/libblitbuffer.so: blitbuffer.c
-	$(CC) $(DYNLIB_CFLAGS) $(VECTO_CFLAGS) -o $@ $^
+	$(CC) $(DYNLIB_CFLAGS) $(VECTO_CFLAGS) $(SYMVIS_FLAGS) -o $@ $^
 
 $(OUTPUT_DIR)/libs/libwrap-mupdf.so: wrap-mupdf.c \
 			$(MUPDF_LIB)
-	$(CC) -I$(MUPDF_DIR)/include $(DYNLIB_CFLAGS) -o $@ $^
+	$(CC) -I$(MUPDF_DIR)/include $(DYNLIB_CFLAGS) $(SYMVIS_FLAGS) -o $@ $^
 ifdef DARWIN
 	install_name_tool -id \
 		libs/libwrap-mupdf.so \
