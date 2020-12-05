@@ -399,7 +399,7 @@ $(ZSTD_LIB): $(THIRDPARTY_DIR)/zstd/*.*
 	cd $(ZSTD_BUILD_DIR) && \
 		$(CMAKE) $(CMAKE_FLAGS) -DCC="$(CC)" -DCXX="$(CXX)" -DAR="$(AR)" \
 		-DCFLAGS="$(CFLAGS)" \
-		-DLDFLAGS="$(LDFLAGS) -Wl,-rpath,'\\\$$ORIGIN/./libs'" \
+		-DLDFLAGS="$(LDFLAGS) -Wl,-rpath,'$(ORIGIN_CMAKE_TO_AUTOCFG)/./libs'" \
 		$(CURDIR)/$(THIRDPARTY_DIR)/zstd && \
 		$(CMAKE_MAKE_PROGRAM) $(CMAKE_MAKE_PROGRAM_FLAGS)
 	cp -fL $(ZSTD_DIR)/lib/$(notdir $(ZSTD_LIB)) $@
