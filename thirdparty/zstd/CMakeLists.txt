@@ -16,8 +16,9 @@ assert_var_defined(LDFLAGS)
 ep_get_source_dir(SOURCE_DIR)
 ep_get_binary_dir(BINARY_DIR)
 
-set(BUILD_CMD sh -c "${KO_MAKE_RECURSIVE} -j${PARALLEL_JOBS} CC=\"${CC}\" CXX=\"${CXX}\" AR=\"${AR}\" MOREFLAGS=\"${CFLAGS} ${LDFLAGS}\" lib")
-set(INSTALL_CMD sh -c "${KO_MAKE_RECURSIVE} -j${PARALLEL_JOBS} CC=\"${CC}\" CXX=\"${CXX}\" AR=\"${AR}\" MOREFLAGS=\"${CFLAGS} ${LDFLAGS}\" prefix=\"${BINARY_DIR}\" install")
+# TODO: Build libzstd-mt on platforms where it makes sense?
+set(BUILD_CMD sh -c "${KO_MAKE_RECURSIVE} -C lib -j${PARALLEL_JOBS} CC=\"${CC}\" CXX=\"${CXX}\" AR=\"${AR}\" MOREFLAGS=\"${CFLAGS} ${LDFLAGS}\" libzstd libzstd.pc")
+set(INSTALL_CMD sh -c "${KO_MAKE_RECURSIVE} -C lib -j${PARALLEL_JOBS} CC=\"${CC}\" CXX=\"${CXX}\" AR=\"${AR}\" MOREFLAGS=\"${CFLAGS} ${LDFLAGS}\" prefix=\"${BINARY_DIR}\" install")
 
 ko_write_gitclone_script(
     GIT_CLONE_SCRIPT_FILENAME
