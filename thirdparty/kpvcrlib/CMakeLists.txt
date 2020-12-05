@@ -20,15 +20,17 @@ set(ANTIWORD_INCLUDE_DIR ${CR_3RDPARTY_DIR}/antiword)
 set(CHM_INCLUDE_DIRS ${CR_3RDPARTY_DIR}/chmlib/src)
 set(CREGINE_INCLUDE_DIR ${CRE_DIR}/include)
 
+assert_var_defined(JCONFIG_INCLUDE_DIR)
 assert_var_defined(FREETYPE_INCLUDE_DIR)
 assert_var_defined(HARFBUZZ_INCLUDE_DIR)
 assert_var_defined(FRIBIDI_INCLUDE_DIR)
 assert_var_defined(LIBUNIBREAK_INCLUDE_DIR)
 assert_var_defined(UTF8PROC_INCLUDE_DIR)
-assert_var_defined(JPEGLIB_INCLUDE_DIR)
 assert_var_defined(PNG_INCLUDE_DIR)
 assert_var_defined(ZLIB_INCLUDE_DIR)
-assert_var_defined(JCONFIG_INCLUDE_DIR)
+assert_var_defined(JPEGLIB_INCLUDE_DIR)
+assert_var_defined(NANOSVG_INCLUDE_DIR)
+assert_var_defined(ZSTD_INCLUDE_DIR)
 
 include_directories(
     ${JCONFIG_INCLUDE_DIR}
@@ -43,6 +45,7 @@ include_directories(
     ${ZLIB_INCLUDE_DIR}
     ${JPEGLIB_INCLUDE_DIR}
     ${NANOSVG_INCLUDE_DIR}
+    ${ZSTD_INCLUDE_DIR}
     ${CREGINE_INCLUDE_DIR}
 )
 
@@ -60,6 +63,7 @@ add_definitions(
     -DUSE_LIBUNIBREAK=1
     -DUSE_UTF8PROC=1
     -DUSE_NANOSVG=1
+    -DUSE_ZSTD=1
     -DALLOW_KERNING=1
     -DCR3_PATCH=1
 )
