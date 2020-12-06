@@ -28,8 +28,8 @@ function zstd.zstd_compress(data)
     return ffi.string(cbuff, clen)
 end
 
-function zstd.zstd_uncompress(zstdata, ulen)
-    -- We technically no longer need ulen, the decompressed size is encoded in the ZST frame header
+function zstd.zstd_uncompress(zstdata)
+    -- The decompressed size is encoded in the ZST frame header
     local n = zst.ZSTD_getFrameContentSize(zstdata, #zstdata)
     local buff = ffi.new("uint8_t[?]", n)
     local len = zst.ZSTD_decompress(buff, n, zstdata, #zstdata)
