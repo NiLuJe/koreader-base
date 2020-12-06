@@ -18,7 +18,7 @@ end
 
 local zlib = {}
 
--- Data compression/decompression of strings thru zlib (may be put in a new base/ffi/zlib.lua)
+-- Data compression/decompression of strings via zlib
 -- from http://luajit.org/ext_ffi_tutorial.html
 function zlib.zlib_compress(data)
     local n = libz.compressBound(#data)
