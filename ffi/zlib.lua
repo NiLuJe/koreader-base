@@ -18,6 +18,8 @@ end
 
 local zlib = {}
 
+-- Data compression/decompression of strings thru zlib (may be put in a new base/ffi/zlib.lua)
+-- from http://luajit.org/ext_ffi_tutorial.html
 function zlib.zlib_compress(data)
     local n = libz.compressBound(#data)
     local buf = ffi.new("uint8_t[?]", n)
