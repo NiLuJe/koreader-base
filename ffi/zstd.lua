@@ -9,11 +9,11 @@ local _ = require("ffi/zstd_h")
 
 local zst
 if ffi.os == "Windows" then
-    zst = ffi.load("libs/zstd.dll")
+    zst = ffi.load("libs/libzstd.dll")
 elseif ffi.os == "OSX" then
-    zst = ffi.load("libs/zstd.1.dylib")
+    zst = ffi.load("libs/libzstd.1.dylib")
 else
-    zst = ffi.load("libs/zstd.so.1")
+    zst = ffi.load("libs/libzstd.so.1")
 end
 
 local zstd = {}
