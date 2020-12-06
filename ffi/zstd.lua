@@ -23,7 +23,7 @@ function zstd.zstd_compress(data)
     local n = zst.ZSTD_compressBound(#data)
     local cbuff = ffi.new("uint8_t[?]", n)
     -- NOTE: We should be quite all right with the default (3), which will most likely trounce zlib's 9 in every respect...
-    local clen = ZSTD_compress(cbuff, n, data, #data, zst.ZSTD_CLEVEL_DEFAULT)
+    local clen = zst.ZSTD_compress(cbuff, n, data, #data, zst.ZSTD_CLEVEL_DEFAULT)
     assert(zst.ZSTD_isError(res) == 0)
     return ffi.string(cbuff, clen)
 end
