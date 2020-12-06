@@ -81,7 +81,7 @@ endif()
 
 if(DEFINED ENV{WIN32})
     find_library(ZLIB NAMES "zlib1" PATHS $ENV{LIBS_DIR})
-    find_library(ZSTD NAMES "zstd-1" PATHS $ENV{LIBS_DIR})
+    find_library(ZSTD NAMES "zstd" PATHS $ENV{LIBS_DIR})
     find_library(PNG_LIB NAMES "png16-16" PATHS $ENV{LIBS_DIR})
     find_library(FREETYPE_LIB NAMES "freetype-6" PATHS $ENV{LIBS_DIR})
     find_library(HARFBUZZ_LIB NAMES "harfbuzz-0" PATHS $ENV{LIBS_DIR})
