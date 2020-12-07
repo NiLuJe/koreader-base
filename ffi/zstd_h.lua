@@ -2,6 +2,7 @@ local ffi = require("ffi")
 
 ffi.cdef[[
 unsigned int ZSTD_versionNumber(void) __attribute__((visibility("default")));
+const char *ZSTD_versionString(void) __attribute__((visibility("default")));
 static const int ZSTD_CLEVEL_DEFAULT = 3;
 size_t ZSTD_compress(void *, size_t, const void *, size_t, int) __attribute__((visibility("default")));
 size_t ZSTD_decompress(void *, size_t, const void *, size_t) __attribute__((visibility("default")));
@@ -106,6 +107,7 @@ typedef enum {
 size_t ZSTD_compressStream2(ZSTD_CCtx *, ZSTD_outBuffer *, ZSTD_inBuffer *, ZSTD_EndDirective) __attribute__((visibility("default")));
 size_t ZSTD_CStreamInSize(void) __attribute__((visibility("default")));
 size_t ZSTD_CStreamOutSize(void) __attribute__((visibility("default")));
+size_t ZSTD_decompressStream(struct ZSTD_DCtx_s *, ZSTD_outBuffer *, ZSTD_inBuffer *) __attribute__((visibility("default")));
 size_t ZSTD_DStreamInSize(void) __attribute__((visibility("default")));
 size_t ZSTD_DStreamOutSize(void) __attribute__((visibility("default")));
 size_t ZSTD_compress_usingDict(ZSTD_CCtx *, void *, size_t, const void *, size_t, const void *, size_t, int) __attribute__((visibility("default")));

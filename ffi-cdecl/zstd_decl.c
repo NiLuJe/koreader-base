@@ -4,6 +4,7 @@
 
 // c.f., https://facebook.github.io/zstd/zstd_manual.html
 cdecl_func(ZSTD_versionNumber)
+cdecl_func(ZSTD_versionString)
 
 // Simple API
 cdecl_const(ZSTD_CLEVEL_DEFAULT)
@@ -63,6 +64,7 @@ cdecl_func(ZSTD_compressStream2)
 cdecl_func(ZSTD_CStreamInSize)
 cdecl_func(ZSTD_CStreamOutSize)
 
+cdecl_func(ZSTD_decompressStream)
 cdecl_func(ZSTD_DStreamInSize)
 cdecl_func(ZSTD_DStreamOutSize)
 
