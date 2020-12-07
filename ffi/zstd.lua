@@ -52,7 +52,10 @@ end
 -- when a table tagged DCtx_mt goes out of scope...
 local DCtx_mt = {}
 function DCtx_mt:free()
-    zst.ZSTD_freeDCtx(self.ptr)
+    if self._allocated then
+        zst.ZSTD_freeDCtx(self.ptr)
+        self._allocated = nil
+    end
 end
 DCtx_mt.__gc = DCtx_mt.free
 local dctx = {}
@@ -62,9 +65,10 @@ function zstd.zstd_uncompress_ctx(ptr, size)
     --print("zstd_uncompress_ctx:", ptr, size)
 
     -- Lazy init the decompression context
-    if not dctx.ptr then
+    if not dctx._allocated then
         dctx.ptr = zst.ZSTD_createDCtx()
         assert(dctx.ptr ~= nil, "Failed to allocate ZSTD decompression context")
+        dctx._allocated = true
     else
         -- Reset the context
         local ret = zst.ZSTD_DCtx_reset(dctx.ptr, zst.ZSTD_reset_session_only)
