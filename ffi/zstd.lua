@@ -44,4 +44,26 @@ function zstd.zstd_uncompress(ptr, size)
     return buff, ulen
 end
 
+-- Same idea, but with a re-usable decompression context
+-- NOTE: We currently don't bother with that for compression,
+--       since the only user (BookInfoManager) runs that in a subprocess anyway.
+local dctx
+function zstd.zstd_uncompress_ctx(ptr, size)
+    --print("zstd_uncompress_ctx:", ptr, size)
+
+    -- Lazy init the decompression context
+    if not dctx then
+        dctx = zstd.ZSTD_createDCtx()
+        assert(dctx ~= nil, "Failed to allocate ZSTD decompression context")
+    end
+
+    -- The decompressed size is encoded in the ZST frame header
+    local n = zst.ZSTD_getFrameContentSize(ptr, size)
+    local buff = C.calloc(n, 1)
+    assert(buff ~= nil, "Failed to allocate ZSTD decompression buffer (" .. tonumber(n) .. " bytes)")
+    local ulen = zst.ZSTD_decompressDCtx(dctx, buff, n, ptr, size)
+    assert(zst.ZSTD_isError(ulen) == 0, ffi.string(zst.ZSTD_getErrorName(ulen)))
+    return buff, ulen
+end
+
 return zstd
