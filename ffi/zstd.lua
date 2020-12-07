@@ -23,6 +23,7 @@ local zstd = {}
 
 -- c.f., https://github.com/facebook/zstd/tree/dev/examples
 function zstd.zstd_compress(ptr, size)
+    --print("zstd_compress:", ptr, size)
     local n = zst.ZSTD_compressBound(size)
     local cbuff = C.calloc(n, 1)
     assert(cbuff ~= nil, "Failed to allocate ZSTD compression buffer (" .. tonumber(n) .. " bytes)")
@@ -33,6 +34,7 @@ function zstd.zstd_compress(ptr, size)
 end
 
 function zstd.zstd_uncompress(ptr, size)
+    --print("zstd_uncompress:", ptr, size)
     -- The decompressed size is encoded in the ZST frame header
     local n = zst.ZSTD_getFrameContentSize(ptr, size)
     local buff = C.calloc(n, 1)
