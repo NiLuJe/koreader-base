@@ -301,6 +301,7 @@ local sql_env = {
   int64_ct     = int64_ct,
   blob_mt      = blob_mt,
   getmetatable = getmetatable,
+  blob         = blob,
   err          = err,
   type         = type
 }
