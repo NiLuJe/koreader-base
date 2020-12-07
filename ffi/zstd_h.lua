@@ -1,6 +1,7 @@
 local ffi = require("ffi")
 
 ffi.cdef[[
+unsigned int ZSTD_versionNumber(void) __attribute__((visibility("default")));
 static const int ZSTD_CLEVEL_DEFAULT = 3;
 size_t ZSTD_compress(void *, size_t, const void *, size_t, int) __attribute__((visibility("default")));
 size_t ZSTD_decompress(void *, size_t, const void *, size_t) __attribute__((visibility("default")));
@@ -85,4 +86,51 @@ typedef enum {
 ZSTD_bounds ZSTD_dParam_getBounds(ZSTD_dParameter) __attribute__((visibility("default")));
 size_t ZSTD_DCtx_setParameter(ZSTD_DCtx *, ZSTD_dParameter, int) __attribute__((visibility("default")));
 size_t ZSTD_DCtx_reset(ZSTD_DCtx *, ZSTD_ResetDirective) __attribute__((visibility("default")));
+struct ZSTD_inBuffer_s {
+  const void *src;
+  size_t size;
+  size_t pos;
+};
+typedef struct ZSTD_inBuffer_s ZSTD_inBuffer;
+struct ZSTD_outBuffer_s {
+  void *dst;
+  size_t size;
+  size_t pos;
+};
+typedef struct ZSTD_outBuffer_s ZSTD_outBuffer;
+typedef enum {
+  ZSTD_e_continue = 0,
+  ZSTD_e_flush = 1,
+  ZSTD_e_end = 2,
+} ZSTD_EndDirective;
+size_t ZSTD_compressStream2(ZSTD_CCtx *, ZSTD_outBuffer *, ZSTD_inBuffer *, ZSTD_EndDirective) __attribute__((visibility("default")));
+size_t ZSTD_CStreamInSize(void) __attribute__((visibility("default")));
+size_t ZSTD_CStreamOutSize(void) __attribute__((visibility("default")));
+size_t ZSTD_DStreamInSize(void) __attribute__((visibility("default")));
+size_t ZSTD_DStreamOutSize(void) __attribute__((visibility("default")));
+size_t ZSTD_compress_usingDict(ZSTD_CCtx *, void *, size_t, const void *, size_t, const void *, size_t, int) __attribute__((visibility("default")));
+size_t ZSTD_decompress_usingDict(ZSTD_DCtx *, void *, size_t, const void *, size_t, const void *, size_t) __attribute__((visibility("default")));
+struct ZSTD_CDict_s;
+typedef struct ZSTD_CDict_s ZSTD_CDict;
+ZSTD_CDict *ZSTD_createCDict(const void *, size_t, int) __attribute__((visibility("default")));
+size_t ZSTD_freeCDict(ZSTD_CDict *) __attribute__((visibility("default")));
+size_t ZSTD_compress_usingCDict(ZSTD_CCtx *, void *, size_t, const void *, size_t, const ZSTD_CDict *) __attribute__((visibility("default")));
+struct ZSTD_DDict_s;
+typedef struct ZSTD_DDict_s ZSTD_DDict;
+ZSTD_DDict *ZSTD_createDDict(const void *, size_t) __attribute__((visibility("default")));
+size_t ZSTD_freeDDict(ZSTD_DDict *) __attribute__((visibility("default")));
+size_t ZSTD_decompress_usingDDict(ZSTD_DCtx *, void *, size_t, const void *, size_t, const ZSTD_DDict *) __attribute__((visibility("default")));
+unsigned int ZSTD_getDictID_fromDict(const void *, size_t) __attribute__((visibility("default")));
+unsigned int ZSTD_getDictID_fromDDict(const ZSTD_DDict *) __attribute__((visibility("default")));
+unsigned int ZSTD_getDictID_fromFrame(const void *, size_t) __attribute__((visibility("default")));
+size_t ZSTD_CCtx_loadDictionary(ZSTD_CCtx *, const void *, size_t) __attribute__((visibility("default")));
+size_t ZSTD_CCtx_refCDict(ZSTD_CCtx *, const ZSTD_CDict *) __attribute__((visibility("default")));
+size_t ZSTD_CCtx_refPrefix(ZSTD_CCtx *, const void *, size_t) __attribute__((visibility("default")));
+size_t ZSTD_DCtx_loadDictionary(ZSTD_DCtx *, const void *, size_t) __attribute__((visibility("default")));
+size_t ZSTD_DCtx_refDDict(ZSTD_DCtx *, const ZSTD_DDict *) __attribute__((visibility("default")));
+size_t ZSTD_DCtx_refPrefix(ZSTD_DCtx *, const void *, size_t) __attribute__((visibility("default")));
+size_t ZSTD_sizeof_CCtx(const ZSTD_CCtx *) __attribute__((visibility("default")));
+size_t ZSTD_sizeof_DCtx(const ZSTD_DCtx *) __attribute__((visibility("default")));
+size_t ZSTD_sizeof_CDict(const ZSTD_CDict *) __attribute__((visibility("default")));
+size_t ZSTD_sizeof_DDict(const ZSTD_DDict *) __attribute__((visibility("default")));
 ]]
