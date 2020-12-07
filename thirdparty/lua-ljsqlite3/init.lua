@@ -19,6 +19,8 @@
 -- TODO: of row table via _step?
 
 local ffi = require("ffi")
+local C = ffi.C
+local posix = require("ffi/posix_h") -- luacheck: ignore 211
 local bit = require("bit")
 
 -- CosminApreutesei's implementation from http://lua-users.org/wiki/SplitJoin
@@ -279,8 +281,10 @@ return function(stmt_or_value, v <opt_i>)
     return sql.sqlite3_<variant>_text(stmt_or_value <opt_i>, v, #v,
       transient)
   elseif t == "table" and getmetatable(v) == blob_mt then
-    return sql.sqlite3_<variant>_blob(stmt_or_value <opt_i>, v[1], v[2],
+    local sql_res = sql.sqlite3_<variant>_blob(stmt_or_value <opt_i>, v[1], v[2],
       transient)
+    C.free(v[1])
+    return sql_res
   elseif t == "nil" then
     return sql.sqlite3_<variant>_null(stmt_or_value <opt_i>)
   else
