@@ -53,8 +53,12 @@ function zstd.zstd_uncompress_ctx(ptr, size)
 
     -- Lazy init the decompression context
     if not dctx then
-        dctx = zstd.ZSTD_createDCtx()
+        dctx = zst.ZSTD_createDCtx()
         assert(dctx ~= nil, "Failed to allocate ZSTD decompression context")
+    else
+        -- Reset the context
+        local ret = zst.ZSTD_DCtx_reset(dctx, zst.ZSTD_reset_session_only)
+        assert(zst.ZSTD_isError(ret) == 0, ffi.string(zst.ZSTD_getErrorName(ret)))
     end
 
     -- The decompressed size is encoded in the ZST frame header
