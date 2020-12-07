@@ -47,17 +47,27 @@ end
 -- Same idea, but with a re-usable decompression context
 -- NOTE: We currently don't bother with that for compression,
 --       since the only user (BookInfoManager) runs that in a subprocess anyway.
-local dctx
+
+-- More for correctness than anything, make sure the GC will actually free the resources
+-- when a table tagged DCtx_mt goes out of scope...
+local DCtx_mt = {}
+function DCtx_mt:free()
+    zst.ZSTD_freeDCtx(self.ptr)
+end
+DCtx_mt.__gc = DCtx_mt.free
+local dctx = {}
+setmetatable(dctx, DCtx_mt)
+
 function zstd.zstd_uncompress_ctx(ptr, size)
     --print("zstd_uncompress_ctx:", ptr, size)
 
     -- Lazy init the decompression context
-    if not dctx then
-        dctx = zst.ZSTD_createDCtx()
-        assert(dctx ~= nil, "Failed to allocate ZSTD decompression context")
+    if not dctx.ptr then
+        dctx.ptr = zst.ZSTD_createDCtx()
+        assert(dctx.ptr ~= nil, "Failed to allocate ZSTD decompression context")
     else
         -- Reset the context
-        local ret = zst.ZSTD_DCtx_reset(dctx, zst.ZSTD_reset_session_only)
+        local ret = zst.ZSTD_DCtx_reset(dctx.ptr, zst.ZSTD_reset_session_only)
         assert(zst.ZSTD_isError(ret) == 0, ffi.string(zst.ZSTD_getErrorName(ret)))
     end
 
@@ -65,7 +75,7 @@ function zstd.zstd_uncompress_ctx(ptr, size)
     local n = zst.ZSTD_getFrameContentSize(ptr, size)
     local buff = C.calloc(n, 1)
     assert(buff ~= nil, "Failed to allocate ZSTD decompression buffer (" .. tonumber(n) .. " bytes)")
-    local ulen = zst.ZSTD_decompressDCtx(dctx, buff, n, ptr, size)
+    local ulen = zst.ZSTD_decompressDCtx(dctx.ptr, buff, n, ptr, size)
     assert(zst.ZSTD_isError(ulen) == 0, ffi.string(zst.ZSTD_getErrorName(ulen)))
     return buff, ulen
 end
