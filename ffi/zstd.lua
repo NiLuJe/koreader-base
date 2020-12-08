@@ -50,7 +50,8 @@ end
 
 -- More for correctness than anything, make sure the GC will actually free the resources when the variable goes out of scope...
 -- NOTE: In Lua 5.1/LuaJIT 2.1, the __gc metamethod is *only* called for userdata, *NOT* tables.
---       There are funky workarounds involving newproxy() available (c.f. https://stackoverflow.com/q/55585619),
+--       There are funky workarounds involving newproxy() available
+--       (c.f. https://stackoverflow.com/q/55585619 & https://github.com/LuaJIT/LuaJIT/issues/47),
 --       but, for cdata, LuaJIT provides custom finalizer handling, so, do that instead ;).
 local DCtx
 
