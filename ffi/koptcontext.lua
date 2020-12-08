@@ -450,7 +450,8 @@ function KOPTContext_mt.__index:optimizePage()
 end
 
 function KOPTContext_mt.__index:free()
-    -- NOTE: Jump through a large amount of shitty hoops to avoid double-frees now that __gc may call uss after an explicit free...
+    -- NOTE: Jump through a large amount of shitty hoops to avoid double-frees,
+    --       now that __gc may actually call us on collection long after an earlier explicit free...
     --- @fixme: Invest in a saner KOPTContext struct, possibly with a private bool to store the free state,
     ---         àla BlitBuffer/lj-sqlite3...
     if self.rnai ~= nil then
@@ -490,6 +491,7 @@ end
 
 function KOPTContext_mt.__index:freeOCR() k2pdfopt.k2pdfopt_tocr_end() end
 
+-- NOTE: KOPTContext is a cdata struct, which is what makes __gc works here ;).
 local kctype = ffi.metatype("KOPTContext", KOPTContext_mt)
 
 function KOPTContext.new()
