@@ -648,7 +648,6 @@ function BB_mt.__index:getAllocated()
     return rshift(band(MASK_ALLOCATED, self.config), SHIFT_ALLOCATED)
 end
 function BB_mt.__index:setAllocated(allocated)
-    print("BB_mt.__index:setAllocated", allocated, self)
     self.config = bor(band(self.config, bxor(MASK_ALLOCATED, 0xFF)), lshift(allocated, SHIFT_ALLOCATED))
     if allocated == 1 then
         self = ffi.gc(self, BB.gc)
@@ -1258,10 +1257,8 @@ will free resources immediately
 this is also called upon garbage collection
 --]]
 function BB_mt.__index:free()
-    print("BB_mt.__index:free", self)
     if band(lshift(1, SHIFT_ALLOCATED), self.config) ~= 0 then
         self.config = band(self.config, bxor(0xFF, lshift(1, SHIFT_ALLOCATED)))
-        print("Freeing", ffi.cast("void *", self.data))
         C.free(self.data)
         self = ffi.gc(self, nil)
     end
@@ -1282,7 +1279,6 @@ and/or that state can change at runtime, via setAllocated ;).
 c.f., BB_mt.__index:setAllocated()
 --]]
 function BB.gc(bb)
-    print("BB.gc", bb)
     bb:free()
 end
 
@@ -2003,7 +1999,6 @@ function BB.new(width, height, buffertype, dataptr, stride, pixel_stride)
     bb:setType(buffertype)
     if dataptr == nil then
         dataptr = C.calloc(stride*height, 1)
-        print("Allocated a new bb from", dataptr, "@", bb)
         assert(dataptr, "cannot allocate memory for blitbuffer")
         bb:setAllocated(1)
     end
