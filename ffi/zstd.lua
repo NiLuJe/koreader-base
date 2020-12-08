@@ -48,29 +48,22 @@ end
 -- NOTE: We currently don't bother with that for compression,
 --       since the only user (BookInfoManager) runs that in a subprocess anyway.
 
--- More for correctness than anything, make sure the GC will actually free the resources
--- when a table tagged DCtx_mt goes out of scope...
-local DCtx_mt = {}
-function DCtx_mt:free()
-    if self.ptr then
-        zst.ZSTD_freeDCtx(self.ptr)
-        self.ptr = nil
-    end
-end
-DCtx_mt.__gc = DCtx_mt.free
-local dctx = {}
-setmetatable(dctx, DCtx_mt)
+-- More for correctness than anything, make sure the GC will actually free the resources when the variable goes out of scope...
+-- NOTE: In Lua 5.1/LuaJIT 2.1, the __gc metamethod is *only* called for userdata, *NOT* tables.
+--       There are funky workarounds involving newproxy() available (c.f. https://stackoverflow.com/q/55585619),
+--       but, for cdata, LuaJIT provides custom finalizer handling, so, do that instead ;).
+local DCtx
 
 function zstd.zstd_uncompress_ctx(ptr, size)
     --print("zstd_uncompress_ctx:", ptr, size)
 
     -- Lazy init the decompression context
-    if not dctx.ptr then
-        dctx.ptr = zst.ZSTD_createDCtx()
-        assert(dctx.ptr ~= nil, "Failed to allocate ZSTD decompression context")
+    if not DCtx then
+        DCtx = ffi.gc(zst.ZSTD_createDCtx(), zst.ZSTD_freeDCtx)
+        assert(DCtx ~= nil, "Failed to allocate ZSTD decompression context")
     else
         -- Reset the context
-        local ret = zst.ZSTD_DCtx_reset(dctx.ptr, zst.ZSTD_reset_session_only)
+        local ret = zst.ZSTD_DCtx_reset(DCtx, zst.ZSTD_reset_session_only)
         assert(zst.ZSTD_isError(ret) == 0, ffi.string(zst.ZSTD_getErrorName(ret)))
     end
 
@@ -78,7 +71,7 @@ function zstd.zstd_uncompress_ctx(ptr, size)
     local n = zst.ZSTD_getFrameContentSize(ptr, size)
     local buff = C.calloc(n, 1)
     assert(buff ~= nil, "Failed to allocate ZSTD decompression buffer (" .. tonumber(n) .. " bytes)")
-    local ulen = zst.ZSTD_decompressDCtx(dctx.ptr, buff, n, ptr, size)
+    local ulen = zst.ZSTD_decompressDCtx(DCtx, buff, n, ptr, size)
     assert(zst.ZSTD_isError(ulen) == 0, ffi.string(zst.ZSTD_getErrorName(ulen)))
     return buff, ulen
 end
