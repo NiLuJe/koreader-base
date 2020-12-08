@@ -450,16 +450,30 @@ function KOPTContext_mt.__index:optimizePage()
 end
 
 function KOPTContext_mt.__index:free()
+    print("KOPTContext_mt:free", self)
+    print("self.rnai", self.rnai)
     leptonica.numaDestroy(ffi.new('NUMA *[1]', self.rnai))
+    print("self.nnai", self.nnai)
     leptonica.numaDestroy(ffi.new('NUMA *[1]', self.nnai))
+    print("self.rboxa", self.rboxa)
     leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.rboxa))
+    print("self.nboxa", self.nboxa)
     leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.nboxa))
+    print("self.src", self.src)
     k2pdfopt.bmp_free(self.src)
+    print("self.dst", self.dst)
     k2pdfopt.bmp_free(self.dst)
+    print("self.rectmaps", self.rectmaps)
     k2pdfopt.wrectmaps_free(self.rectmaps)
+
+    self = ffi.gc(self, nil)
 end
 
-function KOPTContext_mt.__index:__gc() self:free() end
+function KOPTContext_mt:__gc()
+    print("KOPTContext_mt:__gc", self)
+    self:free()
+end
+
 function KOPTContext_mt.__index:freeOCR() k2pdfopt.k2pdfopt_tocr_end() end
 
 local kctype = ffi.metatype("KOPTContext", KOPTContext_mt)
