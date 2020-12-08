@@ -451,22 +451,53 @@ end
 
 function KOPTContext_mt.__index:free()
     print("KOPTContext_mt:free", self)
-    print("self.rnai", self.rnai)
-    leptonica.numaDestroy(ffi.new('NUMA *[1]', self.rnai))
-    print("self.nnai", self.nnai)
-    leptonica.numaDestroy(ffi.new('NUMA *[1]', self.nnai))
-    print("self.rboxa", self.rboxa)
-    leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.rboxa))
-    print("self.nboxa", self.nboxa)
-    leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.nboxa))
-    print("self.src", self.src)
-    k2pdfopt.bmp_free(self.src)
-    print("self.dst", self.dst)
-    k2pdfopt.bmp_free(self.dst)
-    print("self.rectmaps", self.rectmaps)
-    k2pdfopt.wrectmaps_free(self.rectmaps)
 
-    self = ffi.gc(self, nil)
+    -- NOTE: Jump through a large amount of shitty hoops to avoid double-frees...
+    --- @fixme: Invest in a saner KOPTContext struct, possibly with a private bool to store the free state,
+    ---         àla BlitBuffer/lj-sqlite3...
+    print("> self.rnai", self.rnai)
+    if self.rnai then
+        leptonica.numaDestroy(ffi.new('NUMA *[1]', self.rnai))
+        self.rnai = nil
+        print("< self.rnai", self.rnai)
+    end
+    print("> self.nnai", self.nnai)
+    if self.nnai then
+        leptonica.numaDestroy(ffi.new('NUMA *[1]', self.nnai))
+        self.nnai = nil
+        print("< self.nnai", self.nnai)
+    end
+    print("> self.rboxa", self.rboxa)
+    if self.rboxa then
+        leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.rboxa))
+        self.rboxa = nil
+        print("< self.rboxa", self.rboxa)
+    end
+    print("> self.nboxa", self.nboxa)
+    if self.nboxa then
+        leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.nboxa))
+        self.nboxa = nil
+        print("< self.nboxa", self.nboxa)
+    end
+    print("> self.src", self.src, self.src.data)
+    if self.src.data then
+        k2pdfopt.bmp_free(self.src)
+        self.src.data = nil
+        print("< self.src", self.src, self.src.data)
+    end
+    print("> self.dst", self.dst, self.dst.data)
+    if self.dst.data then
+        k2pdfopt.bmp_free(self.dst)
+        self.dst.data = nil
+        print("< self.dst", self.dst, self.dst.data)
+    end
+    print("> self.rectmaps", self.rectmaps, self.rectmaps.wrectmap)
+    -- check than n != 0 instead
+    if self.rectmaps.wrectmap then
+        k2pdfopt.wrectmaps_free(self.rectmaps)
+        self.rectmaps.wrectmap = nil
+        print("< self.rectmaps", self.rectmaps, self.rectmaps.wrectmap)
+    end
 end
 
 function KOPTContext_mt:__gc()
