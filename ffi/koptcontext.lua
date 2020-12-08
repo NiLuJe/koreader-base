@@ -457,45 +457,40 @@ function KOPTContext_mt.__index:free()
     ---         àla BlitBuffer/lj-sqlite3...
     print("> self.rnai", self.rnai)
     if self.rnai then
-        leptonica.numaDestroy(ffi.new('NUMA *[1]', self.rnai))
-        self.rnai = nil
+        local rnai_ptr = ffi.new('NUMA *[1]', self.rnai)
+        leptonica.numaDestroy(rnai_ptr)
+        self.rnai = rnai_ptr[0]
         print("< self.rnai", self.rnai)
     end
     print("> self.nnai", self.nnai)
     if self.nnai then
         leptonica.numaDestroy(ffi.new('NUMA *[1]', self.nnai))
-        self.nnai = nil
+        --self.nnai = nil
         print("< self.nnai", self.nnai)
     end
     print("> self.rboxa", self.rboxa)
     if self.rboxa then
         leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.rboxa))
-        self.rboxa = nil
+        --self.rboxa = nil
         print("< self.rboxa", self.rboxa)
     end
     print("> self.nboxa", self.nboxa)
     if self.nboxa then
         leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.nboxa))
-        self.nboxa = nil
+        --self.nboxa = nil
         print("< self.nboxa", self.nboxa)
     end
     print("> self.src", self.src, self.src.data)
-    if self.src.data then
-        k2pdfopt.bmp_free(self.src)
-        self.src.data = nil
-        print("< self.src", self.src, self.src.data)
-    end
+    -- Already guards against NULL data pointers
+    k2pdfopt.bmp_free(self.src)
+    print("< self.src", self.src, self.src.data)
     print("> self.dst", self.dst, self.dst.data)
-    if self.dst.data then
-        k2pdfopt.bmp_free(self.dst)
-        self.dst.data = nil
-        print("< self.dst", self.dst, self.dst.data)
-    end
+    -- Already guards against NULL data pointers
+    k2pdfopt.bmp_free(self.dst)
+    print("< self.dst", self.dst, self.dst.data)
     print("> self.rectmaps", self.rectmaps, self.rectmaps.wrectmap)
-    -- check than n != 0 instead
-    if self.rectmaps.wrectmap then
+    if self.rectmaps.n ~= 0 then
         k2pdfopt.wrectmaps_free(self.rectmaps)
-        self.rectmaps.wrectmap = nil
         print("< self.rectmaps", self.rectmaps, self.rectmaps.wrectmap)
     end
 end
