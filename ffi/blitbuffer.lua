@@ -1258,7 +1258,7 @@ will free resources immediately
 this is also called upon garbage collection
 --]]
 function BB_mt.__index:free()
-    print("BB_mt.__index.free", self)
+    print("BB_mt.__index:free", self)
     if band(lshift(1, SHIFT_ALLOCATED), self.config) ~= 0 then
         self.config = band(self.config, bxor(0xFF, lshift(1, SHIFT_ALLOCATED)))
         print("Freeing", ffi.cast("void *", self.data))
@@ -1268,7 +1268,8 @@ function BB_mt.__index:free()
 end
 
 --[[
-memory management
+memory management (via FFI cdata finalizers, since the __gc metamethod only runs on userdata in Lua 5.1/LuaJIT, not on tables)
+c.f., BB_mt.__index:setAllocated()
 --]]
 function BB.gc(bb)
     print("BB.gc", bb)
