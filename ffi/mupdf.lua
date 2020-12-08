@@ -98,6 +98,9 @@ function mupdf.openDocument(filename, cache_size)
         merror("MuPDF cannot open file.")
     end
 
+    -- doc is cdata<fz_document *>, attach a finalizer to it to release ressources on garbage collection
+    mupdf_doc.doc = ffi.gc(mupdf_doc.doc, fz_document_gc)
+
     setmetatable(mupdf_doc, document_mt)
 
     if not (mupdf_doc:getPages() > 0) then
@@ -120,6 +123,9 @@ function mupdf.openDocumentFromText(text, magic)
         merror("MuPDF cannot open document from text")
     end
 
+    -- doc is cdata<fz_document *>, attach a finalizer to it to release ressources on garbage collection
+    mupdf_doc.doc = ffi.gc(mupdf_doc.doc, fz_document_gc)
+
     setmetatable(mupdf_doc, document_mt)
 
     return mupdf_doc
@@ -139,7 +145,14 @@ function document_mt.__index:close()
         self.doc = nil
     end
 end
-document_mt.__index.__gc = document_mt.__index.close
+
+function fz_document_gc(doc)
+    print("fz_document_gc", doc)
+    if doc ~= nil then
+        M.fz_drop_document(context(), doc)
+        doc = nil
+    end
+end
 
 --[[
 check if the document needs a password for access
