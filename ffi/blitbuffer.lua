@@ -1764,7 +1764,7 @@ make a full copy of the current buffer, with its own memory
 function BB_mt.__index:copy()
     local mytype = ffi.typeof(self)
     local buffer = C.malloc(self.stride * self.h)
-    assert(buffer, "cannot allocate buffer")
+    assert(buffer ~= nil, "cannot allocate bb copy buffer")
     ffi.copy(buffer, self.data, self.stride * self.h)
     local copy = mytype(self.w, self.pixel_stride, self.h, self.stride, buffer, self.config)
     copy:setAllocated(1)
@@ -1999,7 +1999,7 @@ function BB.new(width, height, buffertype, dataptr, stride, pixel_stride)
     bb:setType(buffertype)
     if dataptr == nil then
         dataptr = C.calloc(stride*height, 1)
-        assert(dataptr, "cannot allocate memory for blitbuffer")
+        assert(dataptr ~= nil, "cannot allocate memory for new bb")
         bb:setAllocated(1)
     end
     bb.data = ffi.cast(bb.data, dataptr)
