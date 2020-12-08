@@ -456,29 +456,52 @@ function KOPTContext_mt.__index:free()
     --- @fixme: Invest in a saner KOPTContext struct, possibly with a private bool to store the free state,
     ---         àla BlitBuffer/lj-sqlite3...
     print("> self.rnai", self.rnai)
-    if self.rnai then
-        local rnai_ptr = ffi.new('NUMA *[1]', self.rnai)
-        leptonica.numaDestroy(rnai_ptr)
-        self.rnai = rnai_ptr[0]
+    if self.rnai ~= nil then
+        print(self.rnai.nalloc, self.rnai.n)
+        local rnai_pptr = ffi.new('NUMA *[1]', self.rnai)
+        leptonica.numaDestroy(rnai_pptr)
+        self.rnai = rnai_pptr[0]
         print("< self.rnai", self.rnai)
+        if self.rnai ~= nil then
+            print("self.rnai is still not NULL?!")
+            print(self.rnai.nalloc, self.rnai.n)
+        end
     end
     print("> self.nnai", self.nnai)
-    if self.nnai then
-        leptonica.numaDestroy(ffi.new('NUMA *[1]', self.nnai))
-        --self.nnai = nil
+    if self.nnai ~= nil then
+        print(self.nnai.nalloc, self.nnai.n)
+        local nnai_pptr = ffi.new('NUMA *[1]', self.nnai)
+        leptonica.numaDestroy(nnai_pptr)
+        self.nnai = nnai_pptr[0]
         print("< self.nnai", self.nnai)
+        if self.nnai ~= nil then
+            print("self.nnai is still not NULL?!")
+            print(self.nnai.nalloc, self.nnai.n)
+        end
     end
     print("> self.rboxa", self.rboxa)
-    if self.rboxa then
-        leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.rboxa))
-        --self.rboxa = nil
+    if self.rboxa ~= nil then
+        print(self.rboxa.nalloc, self.rboxa.n)
+        local rboxa_pptr = ffi.new('BOXA *[1]', self.rboxa)
+        leptonica.boxaDestroy(rboxa_pptr)
+        self.rboxa = rboxa_pptr[0]
         print("< self.rboxa", self.rboxa)
+        if self.rboxa ~= nil then
+            print("self.rboxa is still not NULL?!")
+            print(self.rboxa.nalloc, self.rboxa.n)
+        end
     end
     print("> self.nboxa", self.nboxa)
-    if self.nboxa then
-        leptonica.boxaDestroy(ffi.new('BOXA *[1]', self.nboxa))
-        --self.nboxa = nil
+    if self.nboxa ~= nil then
+        print(self.nboxa.nalloc, self.nboxa.n)
+        local nboxa_pptr = ffi.new('BOXA *[1]', self.nboxa)
+        leptonica.boxaDestroy(nboxa_pptr)
+        self.nboxa = nboxa_pptr[0]
         print("< self.nboxa", self.nboxa)
+        if self.nboxa ~= nil then
+            print("self.nboxa is still not NULL?!")
+            print(self.nboxa.nalloc, self.nboxa.n)
+        end
     end
     print("> self.src", self.src, self.src.data)
     -- Already guards against NULL data pointers
