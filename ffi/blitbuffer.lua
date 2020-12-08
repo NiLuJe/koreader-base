@@ -1269,7 +1269,7 @@ end
 
 --[[
 memory management (via an explicit FFI cdata finalizer, since the __gc metamethod only runs on userdata in Lua 5.1/LuaJIT,
-not on tables. LuaJIT *does* support the __gc metamethod for ctypes *if* a metatable was associated to it via ffi.metatype.
+not on tables. LuaJIT *does* support the __gc metamethod for (struct/union) ctypes *if* a metatable was associated to it via ffi.metatype.
 Relying on that is a bit tricky here because of the whole BB_mt not-being-a-real-metatable hack:
 When attempting to do this via a BB_mt.__index.__gc function, the BB_mt shenanigans below were assigning this method
 to ctype_mt.__index.__gc, instead of ctype_mt.__gc!
