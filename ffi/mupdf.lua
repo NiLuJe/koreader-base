@@ -76,7 +76,6 @@ end
 
 --
 function fz_context_gc(ctx)
-    print("fz_context_gc", ctx)
     if ctx ~= nil then
         M.fz_drop_context(ctx)
         ctx = nil
@@ -140,16 +139,15 @@ this is done automatically by the garbage collector but can be
 triggered explicitly
 --]]
 function document_mt.__index:close()
-    print("document_mt.__index:close", self, self.doc)
     if self.doc ~= nil then
         M.fz_drop_document(context(), self.doc)
+        -- Clear the cdata finalizer to avoid a double-free
         self.doc = ffi.gc(self.doc, nil)
         self.doc = nil
     end
 end
 
 function fz_document_gc(doc)
-    print("fz_document_gc", doc)
     if doc ~= nil then
         M.fz_drop_document(context(), doc)
         doc = nil
@@ -328,16 +326,15 @@ explicitly close the page object
 this is done implicitly by garbage collection, too.
 --]]
 function page_mt.__index:close()
-    print("page_mt.__index:close", self, self.page)
     if self.page ~= nil then
         M.fz_drop_page(context(), self.page)
+        -- Clear the cdata finalizer to avoid a double-free
         self.page = ffi.gc(self.page, nil)
         self.page = nil
     end
 end
 
 function fz_page_gc(page)
-    print("fz_page_gc", page)
     if page ~= nil then
         M.fz_drop_page(context(), page)
         page = nil
