@@ -140,8 +140,10 @@ this is done automatically by the garbage collector but can be
 triggered explicitly
 --]]
 function document_mt.__index:close()
+    print("document_mt.__index:close", self, self.doc)
     if self.doc ~= nil then
         M.fz_drop_document(context(), self.doc)
+        self.doc = ffi.gc(self.doc, nil)
         self.doc = nil
     end
 end
@@ -326,8 +328,10 @@ explicitly close the page object
 this is done implicitly by garbage collection, too.
 --]]
 function page_mt.__index:close()
+    print("page_mt.__index:close", self, self.page)
     if self.page ~= nil then
         M.fz_drop_page(context(), self.page)
+        self.page = ffi.gc(self.page, nil)
         self.page = nil
     end
 end
