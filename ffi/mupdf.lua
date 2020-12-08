@@ -98,7 +98,7 @@ function mupdf.openDocument(filename, cache_size)
         merror("MuPDF cannot open file.")
     end
 
-    -- doc is cdata<fz_document *>, attach a finalizer to it to release ressources on garbage collection
+    -- doc is a cdata<fz_document *>, attach a finalizer to it to release ressources on garbage collection
     mupdf_doc.doc = ffi.gc(mupdf_doc.doc, fz_document_gc)
 
     setmetatable(mupdf_doc, document_mt)
@@ -123,7 +123,7 @@ function mupdf.openDocumentFromText(text, magic)
         merror("MuPDF cannot open document from text")
     end
 
-    -- doc is cdata<fz_document *>, attach a finalizer to it to release ressources on garbage collection
+    -- doc is a cdata<fz_document *>, attach a finalizer to it to release ressources on garbage collection
     mupdf_doc.doc = ffi.gc(mupdf_doc.doc, fz_document_gc)
 
     setmetatable(mupdf_doc, document_mt)
@@ -245,10 +245,16 @@ function document_mt.__index:openPage(number)
         number = number,
         doc = self,
     }
+
     if mupdf_page.page == nil then
         merror("cannot open page #" .. number)
     end
+
+    -- page is a cdata<fz_page *>, attach a finalizer to it to release ressources on garbage collection
+    mupdf_page.page = ffi.gc(mupdf_page.page, fz_page_gc)
+
     setmetatable(mupdf_page, page_mt)
+
     return mupdf_page
 end
 
@@ -325,7 +331,14 @@ function page_mt.__index:close()
         self.page = nil
     end
 end
-page_mt.__index.__gc = page_mt.__index.close
+
+function fz_page_gc(page)
+    print("fz_page_gc", page)
+    if page ~= nil then
+        M.fz_drop_page(context(), page)
+        page = nil
+    end
+end
 
 --[[
 calculate page size after applying DrawContext
