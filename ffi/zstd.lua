@@ -61,7 +61,7 @@ function zstd.zstd_uncompress_ctx(ptr, size)
     --print("zstd_uncompress_ctx:", ptr, size)
 
     -- Lazy init the decompression context
-    if not DCtx then
+    if DCtx == nil then
         DCtx = ffi.gc(zst.ZSTD_createDCtx(), zst.ZSTD_freeDCtx)
         assert(DCtx ~= nil, "Failed to allocate ZSTD decompression context")
     else
