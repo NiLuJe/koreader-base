@@ -1268,7 +1268,11 @@ function BB_mt.__index:free()
 end
 
 --[[
-memory management (via FFI cdata finalizers, since the __gc metamethod only runs on userdata in Lua 5.1/LuaJIT, not on tables)
+memory management (via an explicit FFI cdata finalizer, since the __gc metamethod only runs on userdata in Lua 5.1/LuaJIT,
+not on tables. LuaJIT *does* support the __gc metamethod for ctypes *if* a metatable was associated to it via ffi.metatype.
+Relying on that is a bit tricky here because of the whole BB_mt not-being-a-real-metatable hack:
+it was assigning this method to ctype_mt.__index.__gc, instead of ctype_mt.__gc
+So, prefer doing it ourselves, as it turns out to be slightly less convoluted to grok anyway.
 c.f., BB_mt.__index:setAllocated()
 --]]
 function BB.gc(bb)
