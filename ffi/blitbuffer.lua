@@ -1273,6 +1273,7 @@ not on tables. LuaJIT *does* support the __gc metamethod for (struct/union) ctyp
 Relying on that is a bit tricky here because of the whole BB_mt not-being-a-real-metatable hack:
 When attempting to do this via a BB_mt.__index.__gc function, the BB_mt shenanigans below were assigning this method
 to ctype_mt.__index.__gc, instead of ctype_mt.__gc!
+(e.g., lj-sqlite3 goes that route).
 We'd instead need to handle each separately, like we do for __eq & __tostring.
 So, prefer doing it explicitly ourselves, as it turns out to be slightly less convoluted to grok anyway,
 and makes perfect sense in the context of setAllocated, since *a few* BBs do not actually need a finalizer
