@@ -37,7 +37,6 @@ local FZ_VERSION = "1.13.0"
 
 local document_mt = { __index = {} }
 local page_mt = { __index = {} }
-local mupdf_mt = {}
 
 mupdf.debug = function() --[[ no debugging by default ]] end
 
@@ -54,6 +53,9 @@ local function context()
     if ctx == nil then
         error("cannot create fz_context for MuPDF")
     end
+
+    -- ctx is a cdata<fz_context *>, attach a finalizer to it to release ressources on garbage collection
+    ctx = ffi.gc(ctx, fz_context_gc)
 
     M.fz_install_external_font_funcs(ctx);
 
@@ -72,10 +74,12 @@ local function merror(message)
     end
 end
 
-function mupdf_mt.__gc()
-    if save_ctx ~= nil then
-        M.fz_drop_context(save_ctx)
-        save_ctx = nil
+--
+function fz_context_gc(ctx)
+    print("fz_context_gc", ctx)
+    if ctx ~= nil then
+        M.fz_drop_context(ctx)
+        ctx = nil
     end
 end
 
@@ -953,7 +957,5 @@ function page_mt.__index:toBmp(bmp, dpi, color)
 
     mupdf.color = color_save
 end
-
-setmetatable(mupdf, mupdf_mt)
 
 return mupdf
