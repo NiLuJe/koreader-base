@@ -713,8 +713,6 @@ __attribute__((destructor)) static void cre_teardown(void) {
     CRLog::setLogger( NULL );
     printf("ldomDocCache::close...\n");
     ldomDocCache::close();
-    //printf("ldomFreeStorage\n");
-    //ldomFreeStorage();
 }
 
 static int isBuiltDomStale(lua_State *L) {
