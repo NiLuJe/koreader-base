@@ -18,5 +18,5 @@ return function(t, mt)
             if fin then return fin(t) end
         end
     end
-    return smt(t,mt)
+    return smt(t, mt)
 end
