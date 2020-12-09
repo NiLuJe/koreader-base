@@ -698,6 +698,25 @@ static int closeDocument(lua_State *L) {
 	return 0;
 }
 
+// Library finalizer (c.f., dlopen(3)). This serves no real purpose except making Valgrind's output slightly more useful.
+__attribute__((destructor)) static void cre_teardown(void) {
+    printf("cre_teardown\n");
+    // Since HyphMan::uninit implodes, run that ourselves.
+    printf("TextLangMan::uninit...\n");
+    TextLangMan::uninit();
+    // Crashes on the first delete pair->value...
+    //printf("HyphMan::uninit...\n");
+    //HyphMan::uninit();
+    printf("ShutdownFontManager...\n");
+    ShutdownFontManager();
+    printf("CRLog::setLogger...\n");
+    CRLog::setLogger( NULL );
+    printf("ldomDocCache::close...\n");
+    ldomDocCache::close();
+    //printf("ldomFreeStorage\n");
+    //ldomFreeStorage();
+}
+
 static int isBuiltDomStale(lua_State *L) {
     CreDocument *doc = (CreDocument*) luaL_checkudata(L, 1, "credocument");
     lua_pushboolean(L, doc->dom_doc->isBuiltDomStale());
