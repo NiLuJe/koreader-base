@@ -675,7 +675,7 @@ static int renderDocument(lua_State *L) {
 static int closeDocument(lua_State *L) {
 	CreDocument *doc = (CreDocument*) luaL_checkudata(L, 1, "credocument");
 
-	/* should be save if called twice */
+	/* should be safe if called twice */
 	if(doc->text_view != NULL) {
 		// Call close() to have the cache explicitely saved now
 		// while we still have a callback (to show its progress).
