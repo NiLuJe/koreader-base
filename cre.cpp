@@ -677,6 +677,7 @@ static int closeDocument(lua_State *L) {
 
 	/* should be safe if called twice */
 	if(doc->text_view != NULL) {
+		printf("cre.cpp: doc->text_view was %p\n", doc->text_view);
 		// Call close() to have the cache explicitely saved now
 		// while we still have a callback (to show its progress).
 		doc->text_view->close();
@@ -687,6 +688,11 @@ static int closeDocument(lua_State *L) {
 		}
 		delete doc->text_view;
 		doc->text_view = NULL;
+
+		//delete doc->dom_doc;
+		printf("cre.cpp: doc->dom_doc was %p\n", doc->dom_doc);
+		// Destroyed by text_view->close()
+		doc->dom_doc = NULL;
 	}
 
 	return 0;
@@ -3556,7 +3562,7 @@ int luaopen_cre(lua_State *L) {
 	/* initialize font manager for CREngine */
 	InitFontManager(lString8());
 
-#if DEBUG_CRENGINE
+#if 1
 	CRLog::setStdoutLogger();
 	CRLog::setLogLevel(CRLog::LL_TRACE);
 #endif
