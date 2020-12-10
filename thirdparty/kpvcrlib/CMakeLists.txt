@@ -169,7 +169,6 @@ set (CRENGINE_SOURCES
     ${CRE_DIR}/src/hist.cpp
     ${CRE_DIR}/src/cri18n.cpp
     ${CRE_DIR}/src/crconcurrent.cpp
-    ${CRE_DIR}/src/xxhash.c
 )
 add_library(crengine SHARED ${CRENGINE_SOURCES})
 # Make sure we'll get C++11 support
