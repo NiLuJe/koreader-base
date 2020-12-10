@@ -666,6 +666,7 @@ ZLIB_STATIC=$(ZLIB_DIR)/libz.a
 
 ZSTD_BUILD_DIR=$(THIRDPARTY_DIR)/zstd/build/$(MACHINE)
 ZSTD_DIR=$(CURDIR)/$(ZSTD_BUILD_DIR)/zstd-prefix/src/zstd
+ZSTD_DESTDIR=$(CURDIR)/$(ZSTD_BUILD_DIR)/zstd-prefix/src/zstd-build
 ZSTD_LIB_EXT=$(if $(WIN32),.dll,$(if $(DARWIN),.1.dylib,.so.1))
 ZSTD_LIB=$(OUTPUT_DIR)/libs/libzstd$(ZSTD_LIB_EXT)
 
