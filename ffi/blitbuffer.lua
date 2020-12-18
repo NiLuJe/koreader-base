@@ -778,7 +778,8 @@ BB_mt.__index.setPixelDither = BB_mt.__index.setPixel
 -- Add
 function BB_mt.__index:setPixelAdd(x, y, color, alpha)
     -- fast path:
-    if alpha == 0 then return
+    if alpha == 0 then
+        return
     elseif alpha == 0xFF then
         return self:setPixel(x, y, color)
     end
@@ -791,7 +792,8 @@ function BB_mt.__index:setPixelAdd(x, y, color, alpha)
 end
 function BBRGB16_mt.__index:setPixelAdd(x, y, color, alpha)
     -- fast path:
-    if alpha == 0 then return
+    if alpha == 0 then
+        return
     elseif alpha == 0xFF then
         return self:setPixel(x, y, color)
     end
@@ -810,30 +812,26 @@ function BB_mt.__index:setPixelBlend(x, y, color)
     local alpha = color:getAlpha()
     if alpha == 0 then
         return
-    end
-    if alpha == 0xFF then
+    elseif alpha == 0xFF then
         return self:setPixel(x, y, color)
-    else
-        -- The blend method for these types of target BB assumes a grayscale input
-        local px, py = self:getPhysicalCoordinates(x, y)
-        color = color:getColor8A()
-        if self:getInverse() == 1 then color = color:invert() end
-        self:getPixelP(px, py)[0]:blend(color)
     end
+    -- The blend method for these types of target BB assumes a grayscale input
+    local px, py = self:getPhysicalCoordinates(x, y)
+    color = color:getColor8A()
+    if self:getInverse() == 1 then color = color:invert() end
+    self:getPixelP(px, py)[0]:blend(color)
 end
 function BBRGB16_mt.__index:setPixelBlend(x, y, color)
     -- fast path:
     local alpha = color:getAlpha()
     if alpha == 0 then
         return
-    end
-    if alpha == 0xFF then
+    elseif alpha == 0xFF then
         return self:setPixel(x, y, color)
-    else
-        local px, py = self:getPhysicalCoordinates(x, y)
-        if self:getInverse() == 1 then color = color:invert() end
-        self:getPixelP(px, py)[0]:blend(color)
     end
+    local px, py = self:getPhysicalCoordinates(x, y)
+    if self:getInverse() == 1 then color = color:invert() end
+    self:getPixelP(px, py)[0]:blend(color)
 end
 BBRGB24_mt.__index.setPixelBlend = BBRGB16_mt.__index.setPixelBlend
 BBRGB32_mt.__index.setPixelBlend = BBRGB16_mt.__index.setPixelBlend
@@ -843,18 +841,16 @@ function BB8_mt.__index:setPixelDitherBlend(x, y, color)
     local alpha = color:getAlpha()
     if alpha == 0 then
         return
-    end
-    if alpha == 0xFF then
+    elseif alpha == 0xFF then
         color = color:getColor8()
         color.a = dither_o8x8(x, y, color.a)
         return self:setPixel(x, y, color)
-    else
-        -- The blend method for these types of target BB assumes a grayscale input
-        local px, py = self:getPhysicalCoordinates(x, y)
-        color = color:getColor8A()
-        if self:getInverse() == 1 then color = color:invert() end
-        self:getPixelP(px, py)[0]:ditherblend(x, y, color)
     end
+    -- The blend method for these types of target BB assumes a grayscale input
+    local px, py = self:getPhysicalCoordinates(x, y)
+    color = color:getColor8A()
+    if self:getInverse() == 1 then color = color:invert() end
+    self:getPixelP(px, py)[0]:ditherblend(x, y, color)
 end
 BB_mt.__index.setPixelDitherBlend = BB_mt.__index.setPixelBlend
 -- Premultiplied alpha blending
@@ -863,30 +859,26 @@ function BB_mt.__index:setPixelPmulBlend(x, y, color)
     local alpha = color:getAlpha()
     if alpha == 0 then
         return
-    end
-    if alpha == 0xFF then
+    elseif alpha == 0xFF then
         return self:setPixel(x, y, color)
-    else
-        -- The pmulblend method for these types of target BB assumes a grayscale input
-        local px, py = self:getPhysicalCoordinates(x, y)
-        color = color:getColor8A()
-        if self:getInverse() == 1 then color = color:invert() end
-        self:getPixelP(px, py)[0]:pmulblend(color)
     end
+    -- The pmulblend method for these types of target BB assumes a grayscale input
+    local px, py = self:getPhysicalCoordinates(x, y)
+    color = color:getColor8A()
+    if self:getInverse() == 1 then color = color:invert() end
+    self:getPixelP(px, py)[0]:pmulblend(color)
 end
 function BBRGB16_mt.__index:setPixelPmulBlend(x, y, color)
     -- fast path:
     local alpha = color:getAlpha()
     if alpha == 0 then
         return
-    end
-    if alpha == 0xFF then
+    elseif alpha == 0xFF then
         return self:setPixel(x, y, color)
-    else
-        local px, py = self:getPhysicalCoordinates(x, y)
-        if self:getInverse() == 1 then color = color:invert() end
-        self:getPixelP(px, py)[0]:pmulblend(color)
     end
+    local px, py = self:getPhysicalCoordinates(x, y)
+    if self:getInverse() == 1 then color = color:invert() end
+    self:getPixelP(px, py)[0]:pmulblend(color)
 end
 BBRGB24_mt.__index.setPixelPmulBlend = BBRGB16_mt.__index.setPixelPmulBlend
 BBRGB32_mt.__index.setPixelPmulBlend = BBRGB16_mt.__index.setPixelPmulBlend
@@ -896,18 +888,16 @@ function BB8_mt.__index:setPixelDitherPmulBlend(x, y, color)
     local alpha = color:getAlpha()
     if alpha == 0 then
         return
-    end
-    if alpha == 0xFF then
+    elseif alpha == 0xFF then
         color = color:getColor8()
         color.a = dither_o8x8(x, y, color.a)
         return self:setPixel(x, y, color)
-    else
-        -- The pmulblend method for these types of target BB assumes a grayscale input
-        local px, py = self:getPhysicalCoordinates(x, y)
-        color = color:getColor8A()
-        if self:getInverse() == 1 then color = color:invert() end
-        self:getPixelP(px, py)[0]:ditherpmulblend(x, y, color)
     end
+    -- The pmulblend method for these types of target BB assumes a grayscale input
+    local px, py = self:getPhysicalCoordinates(x, y)
+    color = color:getColor8A()
+    if self:getInverse() == 1 then color = color:invert() end
+    self:getPixelP(px, py)[0]:ditherpmulblend(x, y, color)
 end
 BB_mt.__index.setPixelDitherPmulBlend = BB_mt.__index.setPixelPmulBlend
 -- Colorize (NOTE: colorblitFrom has already handled inversion for us)
