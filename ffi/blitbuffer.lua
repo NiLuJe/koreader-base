@@ -1385,7 +1385,7 @@ function BB_mt.__index:invertRect(x, y, w, h)
                     p = p+1
                 end
             else
-                -- Should only be BB8 left, but honor bpp for safety instead of relying purely on pointer arithmetics...
+                -- Should only be BBRGB24 & BB8 left
                 local p = ffi.cast(uint8pt, self.data) + self.stride*y
                 for i = 1, self.stride*h do
                     p[0] = bxor(p[0], 0xFF)
@@ -1420,7 +1420,7 @@ function BB_mt.__index:invertRect(x, y, w, h)
                     end
                 end
             else
-                -- Again, honor bpp for safety instead of relying purely on pointer arithmetics...
+                -- Honor bpp because of BBRGB24...
                 for j = y, y+h-1 do
                     local p = ffi.cast(uint8pt, self.data) + self.stride*j + bpp*x
                     for i = 0, bpp*(w-1) do
