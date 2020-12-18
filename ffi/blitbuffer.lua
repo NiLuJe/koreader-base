@@ -116,6 +116,7 @@ typedef struct BlitBufferRGB32 {
     uint8_t config;
 } BlitBufferRGB32;
 
+void BB_fill(BlitBuffer * restrict bb, uint8_t v);
 void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsigned int w, unsigned int h, uint8_t v);
 void BB_blend_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsigned int w, unsigned int h, Color8A * restrict color);
 void BB_invert_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsigned int w, unsigned int h);
@@ -1291,8 +1292,43 @@ PAINTING
 fill the whole blitbuffer with a given (grayscale) color value
 --]]
 function BB_mt.__index:fill(value)
-    ffi.fill(self.data, self.stride*self.h, value:getColor8().a)
+    if self:canUseCbb() then
+        cblitbuffer.BB_fill(ffi.cast(P_BlitBuffer, self),
+            v)
+    else
+        -- While we could use a plain ffi.fill, there are a few BB types where we do not want to stomp on the alpha byte...
+        local bbtype = self:getType()
+
+        --print("fill")
+        if bbtype == TYPE_BBRGB32 then
+            local src = value:getColorRGB32()
+            local p = ffi.cast(P_ColorRGB32, ffi.cast(uint8pt, self.data) + self.stride*y)
+            for i = 1, self.pixel_stride*h do
+                p[0] = src
+                -- Pointer arithmetics magic: +1 on an uint32_t* means +4 bytes (i.e., next pixel) ;).
+                p = p+1
+            end
+        elseif bbtype == TYPE_BBRGB16 then
+            local src = value:getColorRGB16()
+            local p = ffi.cast(P_ColorRGB16, ffi.cast(uint8pt, self.data) + self.stride*y)
+            for i = 1, self.pixel_stride*h do
+                p[0] = src
+                p = p+1
+            end
+        elseif bbtype == TYPE_BB8A then
+            local src = value:getColor8A()
+            local p = ffi.cast(P_Color8A, ffi.cast(uint8pt, self.data) + self.stride*y)
+            for i = 1, self.pixel_stride*h do
+                p[0] = src
+                p = p+1
+            end
+        else
+            -- Should only be BBRGB24 & BB8 left, where we can use ffi.fill ;)
+            ffi.fill(self.data, self.stride*self.h, value:getColor8().a)
+        end
+    end
 end
+
 function BB4_mt.__index:fill(value)
     local v = value:getColor4L().a
     v = bor(lshift(v, 4), v)
