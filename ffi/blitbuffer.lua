@@ -1286,7 +1286,7 @@ fill the whole blitbuffer with a given (grayscale) color value
 function BB_mt.__index:fill(value)
     if self:canUseCbb() then
         cblitbuffer.BB_fill(ffi.cast(P_BlitBuffer, self),
-            value)
+            value:getColor8().a)
     else
         -- While we could use a plain ffi.fill, there are a few BB types where we do not want to stomp on the alpha byte...
         local bbtype = self:getType()
