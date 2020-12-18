@@ -1459,9 +1459,6 @@ function BB_mt.__index:paintRect(x, y, w, h, value, setter)
             x, y, w, h, value:getColor8().a)
     else
         -- We can only do fast filling when there's no complex processing involved (i.e., simple setPixel only)
-        -- NOTE: We cheat a bit when targeting non-grayscale BBs,
-        --       because we know we're only used with a grayscale color as input ;).
-        --       The cbb also takes advantage of the same shortcut.
         if setter == self.setPixel then
             -- Handle rotation...
             x, y, w, h = self:getPhysicalRect(x, y, w, h)
