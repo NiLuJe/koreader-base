@@ -811,11 +811,11 @@ function BB_mt.__index:setPixelBlend(x, y, color)
     if alpha == 0 then
         return
     end
-    local px, py = self:getPhysicalCoordinates(x, y)
     if alpha == 0xFF then
-        self:getPixelP(px, py)[0]:set(color)
+        return self:setPixel(x, y, color)
     else
         -- The blend method for these types of target BB assumes a grayscale input
+        local px, py = self:getPhysicalCoordinates(x, y)
         color = color:getColor8A()
         if self:getInverse() == 1 then color = color:invert() end
         self:getPixelP(px, py)[0]:blend(color)
@@ -827,10 +827,10 @@ function BBRGB16_mt.__index:setPixelBlend(x, y, color)
     if alpha == 0 then
         return
     end
-    local px, py = self:getPhysicalCoordinates(x, y)
     if alpha == 0xFF then
-        self:getPixelP(px, py)[0]:set(color)
+        return self:setPixel(x, y, color)
     else
+        local px, py = self:getPhysicalCoordinates(x, y)
         if self:getInverse() == 1 then color = color:invert() end
         self:getPixelP(px, py)[0]:blend(color)
     end
@@ -844,13 +844,13 @@ function BB8_mt.__index:setPixelDitherBlend(x, y, color)
     if alpha == 0 then
         return
     end
-    local px, py = self:getPhysicalCoordinates(x, y)
     if alpha == 0xFF then
         color = color:getColor8()
         color.a = dither_o8x8(x, y, color.a)
-        self:getPixelP(px, py)[0]:set(color)
+        return self:setPixel(x, y, color)
     else
         -- The blend method for these types of target BB assumes a grayscale input
+        local px, py = self:getPhysicalCoordinates(x, y)
         color = color:getColor8A()
         if self:getInverse() == 1 then color = color:invert() end
         self:getPixelP(px, py)[0]:ditherblend(x, y, color)
@@ -864,11 +864,11 @@ function BB_mt.__index:setPixelPmulBlend(x, y, color)
     if alpha == 0 then
         return
     end
-    local px, py = self:getPhysicalCoordinates(x, y)
     if alpha == 0xFF then
-        self:getPixelP(px, py)[0]:set(color)
+        return self:setPixel(x, y, color)
     else
         -- The pmulblend method for these types of target BB assumes a grayscale input
+        local px, py = self:getPhysicalCoordinates(x, y)
         color = color:getColor8A()
         if self:getInverse() == 1 then color = color:invert() end
         self:getPixelP(px, py)[0]:pmulblend(color)
@@ -880,10 +880,10 @@ function BBRGB16_mt.__index:setPixelPmulBlend(x, y, color)
     if alpha == 0 then
         return
     end
-    local px, py = self:getPhysicalCoordinates(x, y)
     if alpha == 0xFF then
-        self:getPixelP(px, py)[0]:set(color)
+        return self:setPixel(x, y, color)
     else
+        local px, py = self:getPhysicalCoordinates(x, y)
         if self:getInverse() == 1 then color = color:invert() end
         self:getPixelP(px, py)[0]:pmulblend(color)
     end
@@ -897,25 +897,27 @@ function BB8_mt.__index:setPixelDitherPmulBlend(x, y, color)
     if alpha == 0 then
         return
     end
-    local px, py = self:getPhysicalCoordinates(x, y)
     if alpha == 0xFF then
         color = color:getColor8()
         color.a = dither_o8x8(x, y, color.a)
-        self:getPixelP(px, py)[0]:set(color)
+        return self:setPixel(x, y, color)
     else
         -- The pmulblend method for these types of target BB assumes a grayscale input
+        local px, py = self:getPhysicalCoordinates(x, y)
         color = color:getColor8A()
         if self:getInverse() == 1 then color = color:invert() end
         self:getPixelP(px, py)[0]:ditherpmulblend(x, y, color)
     end
 end
 BB_mt.__index.setPixelDitherPmulBlend = BB_mt.__index.setPixelPmulBlend
--- Colorize
+-- Colorize (NOTE: colorblitFrom has already handled inversion for us)
 function BB_mt.__index:setPixelColorize(x, y, mask, color)
     -- use 8bit grayscale pixel value as alpha for blitting
     local alpha = mask:getColor8().a
     -- fast path:
-    if alpha == 0 then return end
+    if alpha == 0 then
+        return
+    end
     local px, py = self:getPhysicalCoordinates(x, y)
     if alpha == 0xFF then
         self:getPixelP(px, py)[0]:set(color)
