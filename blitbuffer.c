@@ -72,6 +72,9 @@ static const char*
       15220*ColorRGB16_GetB(v)) >> 14U)
 #define RGB_To_RGB16(r, g, b) (((r & 0xF8) << 8U) + ((g & 0xFC) << 3U) + (b >> 3U))
 #define RGB_To_A(r, g, b) ((4898U*r + 9618U*g + 1869U*b) >> 14U)
+#define Y8_To_Y8A(v) (0xFFu << 8U | v)
+#define RGB_To_RGB32(r, g, b) (0xFFu << 24U | b << 16U | g << 8U | r)
+#define Y8_To_RGB32(v) (0xFFu << 24U | v << 16U | v << 8U | v)
 
 // __auto_type was introduced in GCC 4.9 (and Clang ~3.8)...
 // NOTE: Inspired from glibc's __GNUC_PREREQ && __glibc_clang_prereq macros (from <features.h>),
@@ -195,19 +198,19 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
             // We do NOT want to stomp on the alpha byte here...
             if (rx == 0 && rw == bb->w) {
                 // Single step for contiguous scanlines
-                const Color8A src = {v, 0xFF};
+                const uint16_t src = (uint16_t) Y8_To_Y8A(v);
                 //fprintf(stdout, "%s: Full BB8A paintRect\n", __FUNCTION__);
-                Color8A * restrict p = (Color8A *) (bb->data + bb->stride*ry);
+                uint16_t * restrict p = (uint16_t *) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
                 while (px_count--) {
                     *p++ = src;
                 }
             } else {
                 // Scanline per scanline
-                const Color8A src = {v, 0xFF};
+                const uint16_t src = (uint16_t) Y8_To_Y8A(v);
                 //fprintf(stdout, "%s: Scanline BB8A paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    Color8A * restrict p = (Color8A *) (bb->data + bb->stride*j) + rx;
+                    uint16_t * restrict p = (uint16_t *) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ = src;
@@ -219,19 +222,19 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
             // Again, RGB565 means we can't use a straight memset
             if (rx == 0 && rw == bb->w) {
                 // Single step for contiguous scanlines
-                const ColorRGB16 src = {(uint16_t) RGB_To_RGB16(v, v, v)};
+                const uint16_t src = {(uint16_t) RGB_To_RGB16(v, v, v)};
                 //fprintf(stdout, "%s: Full BBRGB16 paintRect\n", __FUNCTION__);
-                ColorRGB16 * restrict p = (ColorRGB16 *) (bb->data + bb->stride*ry);
+                uint16_t * restrict p = (uint16_t *) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
                 while (px_count--) {
                     *p++ = src;
                 }
             } else {
                 // Scanline per scanline
-                const ColorRGB16 src = {(uint16_t) RGB_To_RGB16(v, v, v)};
+                const uint16_t src = {(uint16_t) RGB_To_RGB16(v, v, v)};
                 //fprintf(stdout, "%s: Sanline BBRGB16 paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    ColorRGB16 * restrict p = (ColorRGB16 *) (bb->data + bb->stride*j) + rx;
+                    uint16_t * restrict p = (uint16_t *) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ = src;
@@ -267,19 +270,19 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
             // And here either, as we want to preserve the alpha byte
             if (rx == 0 && rw == bb->w) {
                 // Single step for contiguous scanlines
-                const ColorRGB32 src = {v, v, v, 0xFF};
+                const uint32_t src = (uint32_t) Y8_To_RGB32(v);
                 //fprintf(stdout, "%s: Full BBRGB32 paintRect\n", __FUNCTION__);
-                ColorRGB32 * restrict p = (ColorRGB32 *) (bb->data + bb->stride*ry);
+                uint32_t * restrict p = (uint32_t *) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
                 while (px_count--) {
                     *p++ = src;
                 }
             } else {
                 // Scanline per scanline
-                const ColorRGB32 src = {v, v, v, 0xFF};
+                const uint32_t src = (uint32_t) Y8_To_RGB32(v);
                 //fprintf(stdout, "%s: Pixel BBRGB32 paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    ColorRGB32 * restrict p = (ColorRGB32 *) (bb->data + bb->stride*j) + rx;
+                    uint32_t * restrict p = (uint32_t *) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ = src;
