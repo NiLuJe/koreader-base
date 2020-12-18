@@ -1302,23 +1302,23 @@ function BB_mt.__index:fill(value)
         --print("fill")
         if bbtype == TYPE_BBRGB32 then
             local src = value:getColorRGB32()
-            local p = ffi.cast(P_ColorRGB32, ffi.cast(uint8pt, self.data) + self.stride*y)
-            for i = 1, self.pixel_stride*h do
+            local p = ffi.cast(P_ColorRGB32, self.data)
+            for i = 1, self.pixel_stride*self.h do
                 p[0] = src
                 -- Pointer arithmetics magic: +1 on an uint32_t* means +4 bytes (i.e., next pixel) ;).
                 p = p+1
             end
         elseif bbtype == TYPE_BBRGB16 then
             local src = value:getColorRGB16()
-            local p = ffi.cast(P_ColorRGB16, ffi.cast(uint8pt, self.data) + self.stride*y)
-            for i = 1, self.pixel_stride*h do
+            local p = ffi.cast(P_ColorRGB16, self.data)
+            for i = 1, self.pixel_stride*self.h do
                 p[0] = src
                 p = p+1
             end
         elseif bbtype == TYPE_BB8A then
             local src = value:getColor8A()
-            local p = ffi.cast(P_Color8A, ffi.cast(uint8pt, self.data) + self.stride*y)
-            for i = 1, self.pixel_stride*h do
+            local p = ffi.cast(P_Color8A, self.data)
+            for i = 1, self.pixel_stride*self.h do
                 p[0] = src
                 p = p+1
             end

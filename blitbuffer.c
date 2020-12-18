@@ -145,47 +145,41 @@ static const char*
 void BB_fill(BlitBuffer * restrict bb, uint8_t v) {
     // Handle any target pitch properly
     const int bb_type = GET_BB_TYPE(bb);
-    switch (bb_type) {
-        case TYPE_BB8:
+    if (bb_type == TYPE_BB8) {
             //fprintf(stdout, "%s: BB8 fill\n", __FUNCTION__);
-            uint8_t * restrict p = bb->data + bb->stride*ry;
-            memset(p, v, bb->stride*rh);
-            break;
-        case TYPE_BB8A:
+            uint8_t * restrict p = bb->data;
+            memset(p, v, bb->stride*bb->h);
+    } else if (bb_type == TYPE_BB8A) {
             // We do NOT want to stomp on the alpha byte here...
             const uint16_t src = (uint16_t) Y8_To_Y8A(v);
             //fprintf(stdout, "%s: BB8A fill\n", __FUNCTION__);
-            uint16_t * restrict p = (uint16_t *) (bb->data + bb->stride*ry);
-            size_t px_count = bb->pixel_stride*rh;
+            uint16_t * restrict p = (uint16_t *) bb->data;
+            size_t px_count = bb->pixel_stride*bb->h;
             while (px_count--) {
                 *p++ = src;
             }
-            break;
-        case TYPE_BBRGB16:
+    } else if (bb_type == TYPE_BBRGB16) {
             // Again, RGB565 means we can't use a straight memset
             const uint16_t src = (uint16_t) RGB_To_RGB16(v, v, v);
             //fprintf(stdout, "%s: BBRGB16 fill\n", __FUNCTION__);
-            uint16_t * restrict p = (uint16_t *) (bb->data + bb->stride*ry);
-            size_t px_count = bb->pixel_stride*rh;
+            uint16_t * restrict p = (uint16_t *) bb->data;
+            size_t px_count = bb->pixel_stride*bb->h;
             while (px_count--) {
                 *p++ = src;
             }
-            break;
-        case TYPE_BBRGB24:
+    } else if (bb_type == TYPE_BBRGB24) {
             //fprintf(stdout, "%s: BBRGB24 fill\n", __FUNCTION__);
-            uint8_t * restrict p = bb->data + bb->stride*ry;
-            memset(p, v, bb->stride*rh);
-            break;
-        case TYPE_BBRGB32:
+            uint8_t * restrict p = bb->data;
+            memset(p, v, bb->stride*bb->h);
+    } else if (bb_type == TYPE_BBRGB32) {
             // And here either, as we want to preserve the alpha byte
             const uint32_t src = (uint32_t) Y8_To_RGB32(v);
             //fprintf(stdout, "%s: BBRGB32 fill\n", __FUNCTION__);
-            uint32_t * restrict p = (uint32_t *) (bb->data + bb->stride*ry);
-            size_t px_count = bb->pixel_stride*rh;
+            uint32_t * restrict p = (uint32_t *) bb->data;
+            size_t px_count = bb->pixel_stride*bb->h;
             while (px_count--) {
                 *p++ = src;
             }
-            break;
     }
 }
 
