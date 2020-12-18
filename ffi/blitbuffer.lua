@@ -1299,9 +1299,13 @@ function BB_mt.__index:fill(value)
         -- While we could use a plain ffi.fill, there are a few BB types where we do not want to stomp on the alpha byte...
         local bbtype = self:getType()
 
+        -- Handle invert...
+        local v = value:getColor8()
+        if self:getInverse() == 1 then v = v:invert() end
+
         --print("fill")
         if bbtype == TYPE_BBRGB32 then
-            local src = value:getColorRGB32()
+            local src = v:getColorRGB32()
             local p = ffi.cast(P_ColorRGB32, self.data)
             for i = 1, self.pixel_stride*self.h do
                 p[0] = src
@@ -1309,14 +1313,14 @@ function BB_mt.__index:fill(value)
                 p = p+1
             end
         elseif bbtype == TYPE_BBRGB16 then
-            local src = value:getColorRGB16()
+            local src = v:getColorRGB16()
             local p = ffi.cast(P_ColorRGB16, self.data)
             for i = 1, self.pixel_stride*self.h do
                 p[0] = src
                 p = p+1
             end
         elseif bbtype == TYPE_BB8A then
-            local src = value:getColor8A()
+            local src = v:getColor8A()
             local p = ffi.cast(P_Color8A, self.data)
             for i = 1, self.pixel_stride*self.h do
                 p[0] = src
@@ -1324,7 +1328,7 @@ function BB_mt.__index:fill(value)
             end
         else
             -- Should only be BBRGB24 & BB8 left, where we can use ffi.fill ;)
-            ffi.fill(self.data, self.stride*self.h, value:getColor8().a)
+            ffi.fill(self.data, self.stride*self.h, v.a)
         end
     end
 end
