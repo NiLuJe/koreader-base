@@ -197,7 +197,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 // Single step for contiguous scanlines
                 const Color8A src = {v, 0xFF};
                 //fprintf(stdout, "%s: Full BB8A paintRect\n", __FUNCTION__);
-                Color8A * restrict p = (Color8A*) (bb->data + bb->stride*ry);
+                Color8A * restrict p = (Color8A *) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
                 while (px_count--) {
                     *p++ = src;
@@ -207,7 +207,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 const Color8A src = {v, 0xFF};
                 //fprintf(stdout, "%s: Scanline BB8A paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    Color8A * restrict p = (Color8A*) (bb->data + bb->stride*j) + rx;
+                    Color8A * restrict p = (Color8A *) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ = src;
@@ -221,7 +221,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 // Single step for contiguous scanlines
                 const ColorRGB16 src = {(uint16_t) RGB_To_RGB16(v, v, v)};
                 //fprintf(stdout, "%s: Full BBRGB16 paintRect\n", __FUNCTION__);
-                uint16_t * restrict p = (uint16_t*) (bb->data + bb->stride*ry);
+                ColorRGB16 * restrict p = (ColorRGB16 *) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
                 while (px_count--) {
                     *p++ = src;
@@ -231,7 +231,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 const ColorRGB16 src = {(uint16_t) RGB_To_RGB16(v, v, v)};
                 //fprintf(stdout, "%s: Sanline BBRGB16 paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    uint16_t * restrict p = (uint16_t*) (bb->data + bb->stride*j) + rx;
+                    ColorRGB16 * restrict p = (ColorRGB16 *) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ = src;
@@ -269,7 +269,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 // Single step for contiguous scanlines
                 const ColorRGB32 src = {v, v, v, 0xFF};
                 //fprintf(stdout, "%s: Full BBRGB32 paintRect\n", __FUNCTION__);
-                uint32_t * restrict p = (uint32_t*) (bb->data + bb->stride*ry);
+                ColorRGB32 * restrict p = (ColorRGB32 *) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
                 while (px_count--) {
                     *p++ = src;
@@ -279,7 +279,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 const ColorRGB32 src = {v, v, v, 0xFF};
                 //fprintf(stdout, "%s: Pixel BBRGB32 paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    uint32_t * restrict p = (uint32_t*) (bb->data + bb->stride*j) + rx;
+                    ColorRGB32 * restrict p = (ColorRGB32 *) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ = src;
