@@ -204,7 +204,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 }
             } else {
                 // Scanline per scanline
-                const Color8A src = Color8_To_Color8A(Color8{v});
+                const Color8A src = {v, 0xFF};
                 //fprintf(stdout, "%s: Scanline BB8A paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
                     Color8A * restrict p = (Color8A*) (bb->data + bb->stride*j) + rx;
@@ -219,7 +219,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
             // Again, RGB565 means we can't use a straight memset
             if (rx == 0 && rw == bb->w) {
                 // Single step for contiguous scanlines
-                const ColorRGB16 src = Color8A_To_Color16(Color8{v});
+                const ColorRGB16 src = {(uint16_t) RGB_To_RGB16(v, v, v)};
                 //fprintf(stdout, "%s: Full BBRGB16 paintRect\n", __FUNCTION__);
                 uint16_t * restrict p = (uint16_t*) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
@@ -228,7 +228,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 }
             } else {
                 // Scanline per scanline
-                const ColorRGB16 src = Color8A_To_Color16(Color8{v});
+                const ColorRGB16 src = {(uint16_t) RGB_To_RGB16(v, v, v)};
                 //fprintf(stdout, "%s: Sanline BBRGB16 paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
                     uint16_t * restrict p = (uint16_t*) (bb->data + bb->stride*j) + rx;
@@ -243,7 +243,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
             // FIXME: We could use a memset here, though...
             if (rx == 0 && rw == bb->w) {
                 // Single step for contiguous scanlines
-                const ColorRGB24 src = Color8A_To_Color24(Color8{v});
+                const ColorRGB24 src = {v, v, v};
                 //fprintf(stdout, "%s: Full BBRGB24 paintRect\n", __FUNCTION__);
                 ColorRGB24 * restrict p = (ColorRGB24 *) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
@@ -252,10 +252,10 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 }
             } else {
                 // Scanline per scanline
-                const ColorRGB24 src = Color8A_To_Color24(Color8{v});
+                const ColorRGB24 src = {v, v, v};
                 //fprintf(stdout, "%s: Scanline BBRGB24 paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
-                    uint8_t * restrict p = (ColorRGB24 *) (bb->data + bb->stride*j) + rx;
+                    ColorRGB24 * restrict p = (ColorRGB24 *) (bb->data + bb->stride*j) + rx;
                     size_t px_count = rw;
                     while (px_count--) {
                         *p++ = src;
@@ -267,7 +267,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
             // And here either, as we want to preserve the alpha byte
             if (rx == 0 && rw == bb->w) {
                 // Single step for contiguous scanlines
-                const ColorRGB32 src = Color8A_To_Color32(Color8{v});
+                const ColorRGB32 src = {v, v, v, 0xFF};
                 //fprintf(stdout, "%s: Full BBRGB32 paintRect\n", __FUNCTION__);
                 uint32_t * restrict p = (uint32_t*) (bb->data + bb->stride*ry);
                 size_t px_count = bb->pixel_stride*rh;
@@ -276,7 +276,7 @@ void BB_fill_rect(BlitBuffer * restrict bb, unsigned int x, unsigned int y, unsi
                 }
             } else {
                 // Scanline per scanline
-                const ColorRGB32 src = Color8A_To_Color32(Color8{v});
+                const ColorRGB32 src = {v, v, v, 0xFF};
                 //fprintf(stdout, "%s: Pixel BBRGB32 paintRect\n", __FUNCTION__);
                 for (unsigned int j = ry; j < ry+rh; j++) {
                     uint32_t * restrict p = (uint32_t*) (bb->data + bb->stride*j) + rx;
