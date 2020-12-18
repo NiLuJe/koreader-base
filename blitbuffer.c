@@ -73,8 +73,8 @@ static const char*
 #define RGB_To_RGB16(r, g, b) (((r & 0xF8) << 8U) + ((g & 0xFC) << 3U) + (b >> 3U))
 #define RGB_To_A(r, g, b) ((4898U*r + 9618U*g + 1869U*b) >> 14U)
 #define Y8_To_Y8A(v) (0xFFu << 8U | v)
-#define RGB_To_RGB32(r, g, b) (0xFFu << 24U | b << 16U | g << 8U | r)
-#define Y8_To_RGB32(v) (0xFFu << 24U | v << 16U | v << 8U | v)
+#define RGB_To_RGB32(r, g, b) ((uint32_t) (0xFFu << 24U) | (uint32_t) (b << 16U) | (uint32_t) (g << 8U) | r)
+#define Y8_To_RGB32(v) ((uint32_t) (0xFFu << 24U) | (uint32_t) (v << 16U) | (uint32_t) (v << 8U) | v)
 
 // __auto_type was introduced in GCC 4.9 (and Clang ~3.8)...
 // NOTE: Inspired from glibc's __GNUC_PREREQ && __glibc_clang_prereq macros (from <features.h>),
