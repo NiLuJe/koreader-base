@@ -1458,27 +1458,86 @@ function BB_mt.__index:paintRect(x, y, w, h, value, setter)
         if setter == self.setPixel then
             -- Handle rotation...
             x, y, w, h = self:getPhysicalRect(x, y, w, h)
+
+            -- While we could use a plain ffi.fill, there are a few BB types where we do not want to stomp on the alpha byte...
+            local bbtype = self:getType()
+
             -- Handle invert...
             local v = value:getColor8()
             if self:getInverse() == 1 then v = v:invert() end
-            -- Handle any target stride properly (i.e., fetch the amount of bytes taken per pixel)...
-            local bpp = self:getBytesPerPixel()
 
             -- We check against the BB's unrotated coordinates (i.e., self.w and not self:getWidth()),
             -- as our memory region has a fixed layout, too!
             if x == 0 and w == self.w then
                 -- Single step for contiguous scanlines
                 --print("Single fill paintRect")
-                local p = ffi.cast(uint8pt, self.data) + self.stride*y
-                -- Account for potentially off-screen scanline bits by using self.pixel_stride instead of w,
-                -- as we've just assured ourselves that the requested w matches self.w ;).
-                ffi.fill(p, self.stride*h, v.a)
+                if bbtype == TYPE_BBRGB32 then
+                    local src = v:getColorRGB32()
+                    local p = ffi.cast(P_ColorRGB32, ffi.cast(uint8pt, self.data) + self.stride*y)
+                    for i = 1, self.pixel_stride*h do
+                        p[0] = src
+                        p = p+1
+                    end
+                elseif bbtype == TYPE_BBRGB16 then
+                    local src = v:getColorRGB16()
+                    local p = ffi.cast(P_ColorRGB16, ffi.cast(uint8pt, self.data) + self.stride*y)
+                    for i = 1, self.pixel_stride*h do
+                        p[0] = src
+                        p = p+1
+                    end
+                elseif bbtype == TYPE_BB8A then
+                    local src = v:getColor8A()
+                    local p = ffi.cast(P_Color8A, ffi.cast(uint8pt, self.data) + self.stride*y)
+                    for i = 1, self.pixel_stride*h do
+                        p[0] = src
+                        p = p+1
+                    end
+                else
+                    -- BBRGB24 & BB8, where we can just use ffi.fill
+                    local p = ffi.cast(uint8pt, self.data) + self.stride*y
+                    ffi.fill(p, self.stride*h, v.a)
+                end
             else
                 -- Scanline per scanline fill
                 --print("Scanline fill paintRect")
-                for j = y, y+h-1 do
-                    local p = ffi.cast(uint8pt, self.data) + self.stride*j + bpp*x
-                    ffi.fill(p, bpp*w, v.a)
+                if bbtype == TYPE_BBRGB32 then
+                    local src = v:getColorRGB32()
+                    for j = y, y+h-1 do
+                        local p = ffi.cast(P_ColorRGB32, ffi.cast(uint8pt, self.data) + self.stride*j) + x
+                        for i = 0, w-1 do
+                            p[0] = src
+                            p = p+1
+                        end
+                    end
+                elseif bbtype == TYPE_BBRGB24 then
+                    for j = y, y+h-1 do
+                        local p = ffi.cast(uint8pt, self.data) + self.stride*y + (x * 3)
+                        ffi.fill(p, w * 3, v.a)
+                    end
+                elseif bbtype == TYPE_BBRGB16 then
+                    local src = v:getColorRGB16()
+                    for j = y, y+h-1 do
+                        local p = ffi.cast(P_ColorRGB16, ffi.cast(uint8pt, self.data) + self.stride*j) + x
+                        for i = 0, w-1 do
+                            p[0] = src
+                            p = p+1
+                        end
+                    end
+                elseif bbtype == TYPE_BB8A then
+                    local src = v:getColor8A()
+                    for j = y, y+h-1 do
+                        local p = ffi.cast(P_Color8A, ffi.cast(uint8pt, self.data) + self.stride*j) + x
+                        for i = 0, w-1 do
+                            p[0] = src
+                            p = p+1
+                        end
+                    end
+                else
+                    -- BB8
+                    for j = y, y+h-1 do
+                        local p = ffi.cast(uint8pt, self.data) + self.stride*y + x
+                        ffi.fill(p, w, v.a)
+                    end
                 end
             end
         else
