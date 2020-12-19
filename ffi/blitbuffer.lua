@@ -1320,7 +1320,8 @@ function BB_mt.__index:fill(value)
             end
         else
             -- Should only be BBRGB24 & BB8 left, where we can use ffi.fill ;)
-            ffi.fill(self.data, self.stride*self.h, v.a)
+            local p = ffi.cast(uint8pt, self.data)
+            ffi.fill(p, self.stride*self.h, v.a)
         end
     end
 end
@@ -1511,7 +1512,7 @@ function BB_mt.__index:paintRect(x, y, w, h, value, setter)
                     end
                 elseif bbtype == TYPE_BBRGB24 then
                     for j = y, y+h-1 do
-                        local p = ffi.cast(uint8pt, self.data) + self.stride*y + (x * 3)
+                        local p = ffi.cast(uint8pt, self.data) + self.stride*j + (x * 3)
                         ffi.fill(p, w * 3, v.a)
                     end
                 elseif bbtype == TYPE_BBRGB16 then
@@ -1535,7 +1536,7 @@ function BB_mt.__index:paintRect(x, y, w, h, value, setter)
                 else
                     -- BB8
                     for j = y, y+h-1 do
-                        local p = ffi.cast(uint8pt, self.data) + self.stride*y + x
+                        local p = ffi.cast(uint8pt, self.data) + self.stride*j + x
                         ffi.fill(p, w, v.a)
                     end
                 end
