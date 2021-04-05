@@ -2,10 +2,10 @@ package.path = "common/?.lua;" .. package.path
 package.cpath = "common/?.so;" .. package.cpath
 require("ffi_wrapper")
 
+local buffer = require("string.buffer")
 local url = require("socket.url")
 local http = require("socket.http")
 local https = require("ssl.https")
-local serial = require("serialize")
 local Blitbuffer = require("ffi/blitbuffer")
 
 describe("Common modules", function()
@@ -34,8 +34,8 @@ describe("Common modules", function()
                 bb:setPixel(j, i, color)
             end
         end
-        serial.dump(bb.w, bb.h, bb:getType(), Blitbuffer.tostring(bb), "/tmp/bb.dump")
-        local ss = Blitbuffer.fromstring(serial.load("/tmp/bb.dump"))
+        local bb_dump = buffer.encode(bb)
+        local ss = buffer.decode(bb_dump)
         assert.are.same(bb.w, ss.w)
         assert.are.same(bb.h, ss.h)
         assert.are.same(bb.stride, ss.stride)
