@@ -153,11 +153,15 @@ function document_mt.__index:close()
         self.doc = nil
 
         -- Clear the context, too, in order to release memory *now*.
-        --- @fixme: Implodes horribly. Possibly fixed in newer MµPDF versions. c.f., #7627
+        --- @note: This is mostly for testing the store memory corruption issues investigated in #7627.
+        ---        Otherwise, keeping the context around makes sense,
+        ---        as we use MµPDF in more places than simply as a Document engine...
         --[[
         if save_ctx then
             print("MuPDF:close dropping context", save_ctx)
             M.fz_drop_context(save_ctx)
+            -- Clear the cdata finalizer to avoid a double-free
+            save_ctx = ffi.gc(save_ctx, nil)
             save_ctx = nil
         end
         --]]
