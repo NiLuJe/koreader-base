@@ -32,6 +32,8 @@ local W = ffi.load("libs/libwrap-mupdf.so")
 ---         (FZ_STORE_DEFAULT is 256MB, we used to set it to 8MB).
 ---         And when we bump MµPDF, it'll likely have *more* stuff to store in there,
 --          so, don't make that too low, period ;).
+--          NOTE: Revisit when we bump MµPDF by doing a few tests with the tracing memory allocators,
+--                as even 32MB is likely to be too conservative.
 local mupdf = {
     debug_memory = false,
     cache_size = 32*1024*1024,
@@ -85,6 +87,7 @@ end
 --
 function mupdf.fz_context_gc(ctx)
     if ctx ~= nil then
+        print("MuPDF:gc dropping context", ctx)
         M.fz_drop_context(ctx)
     end
 end
