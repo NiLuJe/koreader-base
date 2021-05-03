@@ -26,9 +26,13 @@ else
 end
 local W = ffi.load("libs/libwrap-mupdf.so")
 
+--- @fixme: Don't make cache_size too low, at least not until we bump MµPDF,
+---         as there's a pernicious issue that corrupts its store cache on old versions.
+---         c.f., https://github.com/koreader/koreader/issues/7627
+---         (The default is 256MB, we used to set it to 8MB).
 local mupdf = {
     debug_memory = false,
-    cache_size = 8*1024*1024,
+    cache_size = 16*1024*1024,
     color = false,
 }
 -- this cannot get adapted by the cdecl file because it is a
@@ -45,6 +49,7 @@ local save_ctx = nil
 local function context()
     if save_ctx ~= nil then return save_ctx end
 
+    print("MuPDF allocating a new context")
     local ctx = M.fz_new_context_imp(
         mupdf.debug_memory and W.mupdf_get_my_alloc_context() or nil,
         nil,
@@ -57,7 +62,8 @@ local function context()
     -- ctx is a cdata<fz_context *>, attach a finalizer to it to release ressources on garbage collection
     ctx = ffi.gc(ctx, mupdf.fz_context_gc)
 
-    M.fz_install_external_font_funcs(ctx);
+    M.fz_install_external_font_funcs(ctx)
+    M.fz_register_document_handlers(ctx)
 
     save_ctx = ctx
     return ctx
@@ -84,9 +90,7 @@ end
 --[[--
 Opens a document.
 --]]
-function mupdf.openDocument(filename, cache_size)
-    M.fz_register_document_handlers(context())
-
+function mupdf.openDocument(filename)
     local mupdf_doc = {
         doc = W.mupdf_open_document(context(), filename),
         filename = filename,
@@ -109,8 +113,6 @@ function mupdf.openDocument(filename, cache_size)
 end
 
 function mupdf.openDocumentFromText(text, magic)
-    M.fz_register_document_handlers(context())
-
     local stream = W.mupdf_open_memory(context(), ffi.cast("const unsigned char*", text), #text)
     local mupdf_doc = {
         doc = W.mupdf_open_document_with_stream(context(), magic, stream),
@@ -139,15 +141,27 @@ triggered explicitly
 --]]
 function document_mt.__index:close()
     if self.doc ~= nil then
+        print("MuPDF:close dropping document", self.doc, self)
         M.fz_drop_document(context(), self.doc)
         -- Clear the cdata finalizer to avoid a double-free
         self.doc = ffi.gc(self.doc, nil)
         self.doc = nil
+
+        -- Clear the context, too, in order to release memory *now*.
+        --- @fixme: Implodes horribly. Possibly fixed in newer MµPDF versions. c.f., #7627
+        --[[
+        if save_ctx then
+            print("MuPDF:close dropping context", save_ctx)
+            M.fz_drop_context(save_ctx)
+            save_ctx = nil
+        end
+        --]]
     end
 end
 
 function mupdf.fz_document_gc(doc)
     if doc ~= nil then
+        print("MuPDF:gc dropping document", doc)
         M.fz_drop_document(context(), doc)
     end
 end
@@ -248,6 +262,7 @@ function document_mt.__index:openPage(number)
         merror("cannot open page #" .. number)
     end
 
+    print("loaded page", mupdf_page.page)
     -- page is a cdata<fz_page *>, attach a finalizer to it to release ressources on garbage collection
     mupdf_page.page = ffi.gc(mupdf_page.page, mupdf.fz_page_gc)
 
@@ -325,6 +340,7 @@ this is done implicitly by garbage collection, too.
 --]]
 function page_mt.__index:close()
     if self.page ~= nil then
+        print("Dropping page", self.page, self)
         M.fz_drop_page(context(), self.page)
         -- Clear the cdata finalizer to avoid a double-free
         self.page = ffi.gc(self.page, nil)

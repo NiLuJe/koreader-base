@@ -1291,6 +1291,7 @@ this is also called upon garbage collection
 --]]
 function BB_mt.__index:free()
     if band(lshift(1, SHIFT_ALLOCATED), self.config) ~= 0 then
+        print("free BB", self)
         self.config = band(self.config, bxor(0xFF, lshift(1, SHIFT_ALLOCATED)))
         C.free(self.data)
         ffi.gc(self, nil)
@@ -1312,6 +1313,7 @@ and/or that state can change at runtime, via setAllocated ;).
 c.f., BB_mt.__index:setAllocated()
 --]]
 function BB.gc(bb)
+    print("BB gc", bb)
     bb:free()
 end
 
@@ -2141,6 +2143,7 @@ function BB.new(width, height, buffertype, dataptr, stride, pixel_stride)
         bb:setAllocated(1)
     end
     bb.data = ffi.cast(bb.data, dataptr)
+    print("new BB", bb)
     return bb
 end
 
