@@ -27,12 +27,14 @@ end
 local W = ffi.load("libs/libwrap-mupdf.so")
 
 --- @fixme: Don't make cache_size too low, at least not until we bump MµPDF,
----         as there's a pernicious issue that corrupts its store cache on old versions.
+---         as there's a pernicious issue that corrupts its store cache on overcommit on old versions.
 ---         c.f., https://github.com/koreader/koreader/issues/7627
----         (The default is 256MB, we used to set it to 8MB).
+---         (FZ_STORE_DEFAULT is 256MB, we used to set it to 8MB).
+---         And when we bump MµPDF, it'll likely have *more* stuff to store in there,
+--          so, don't make that too low, period ;).
 local mupdf = {
     debug_memory = false,
-    cache_size = 16*1024*1024,
+    cache_size = 32*1024*1024,
     color = false,
 }
 -- this cannot get adapted by the cdecl file because it is a
