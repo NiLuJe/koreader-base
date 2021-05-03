@@ -627,6 +627,9 @@ $(LUASERIAL_LIB): $(THIRDPARTY_DIR)/lua-serialize/*.*
 		$(CURDIR)/$(THIRDPARTY_DIR)/lua-serialize && \
 		$(CMAKE_MAKE_PROGRAM) $(CMAKE_MAKE_PROGRAM_FLAGS)
 
+# NOTE: We don't ship lua-serialize anymore, but the Evernote plugin still requires this.
+#       Both it and lua-serialize build an horribly outdated version of it.
+#       Someone who actually cares about this probably ought to bump the submodule.
 $(LUACOMPAT52): $(LUASERIAL_LIB) $(THIRDPARTY_DIR)/lua-serialize/CMakeLists.txt
 	cp $(OUTPUT_DIR)/common/$(notdir $(LUACOMPAT52)) $(OUTPUT_DIR)/libs
 
