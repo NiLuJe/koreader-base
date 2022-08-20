@@ -229,6 +229,9 @@ local function disp_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, wa
         --       (and matches the amount of time the ioctl actually blocks for when it doesn't go wonky).
         ffiUtil.usleep(450000)
         powerd:setIntensity(fl_intensity)
+        -- Like the real ioctl, no need to wait for that one again...
+        marker = fb.marker_data[0]
+        fb.dont_wait_for_marker = marker
     end
 end
 

@@ -336,8 +336,12 @@ local function mxc_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, x, 
     ioc_data.update_marker = marker
 
     -- Handle night mode shenanigans
+    local frontlight_dimmed = false
+    local powerd, fl_intensity
     if fb.night_mode then
-        -- We're in nightmode!
+        -- We'll need those later for frontlight shenanigans
+        powerd = fb.device:getPowerDevice()
+        fl_intensity = powerd:frontlightIntensity()
         -- If the device can do HW inversion safely, and doesn't already handle setting the flag automatically, do that!
         if fb.device:canHWInvert() and not fb:getHWNightmode() then
             ioc_data.flags = bor(ioc_data.flags, C.EPDC_FLAG_ENABLE_INVERSION)
@@ -369,6 +373,13 @@ local function mxc_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, x, 
     -- Recap the actual details of the ioctl, vs. what UIManager asked for...
     fb.debug(string.format("mxc_update: %ux%u region @ (%u, %u) with marker %u (WFM: %u & UPD: %u)", w, h, x, y, marker, ioc_data.waveform_mode, ioc_data.update_mode))
 
+    -- Frontlight dimming in night mode
+    if fb.night_mode and is_flashing and fb:_isFullScreen(w, h) and fl_intensity > 5 then
+        -- 5 is an arbitrarily chosen value that I deemed to look better than just shutting it off ;p.
+        powerd:setIntensity(5)
+        frontlight_dimmed = true
+    end
+
     if C.ioctl(fb.fd, ioc_cmd, ioc_data) == -1 then
         local err = ffi.errno()
         fb.debug("MXCFB_SEND_UPDATE ioctl failed:", ffi.string(C.strerror(err)))
@@ -392,6 +403,14 @@ local function mxc_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, x, 
         end
         -- And make sure we won't wait for it again, in case the next refresh trips one of our wait_for_*  heuristics ;).
         fb.dont_wait_for_marker = marker
+    end
+
+    if frontlight_dimmed then
+        -- If the device has a borked wait_for ioctl, do an actual longer sleep than stub_mxc_wait_for_update_complete
+        if fb.mech_wait_update_complete == stub_mxc_wait_for_update_complete then
+            ffiUtil.usleep(450000)
+        end
+        powerd:setIntensity(fl_intensity)
     end
 end
 
