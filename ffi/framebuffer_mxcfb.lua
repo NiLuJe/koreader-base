@@ -373,8 +373,8 @@ local function mxc_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, x, 
     -- Recap the actual details of the ioctl, vs. what UIManager asked for...
     fb.debug(string.format("mxc_update: %ux%u region @ (%u, %u) with marker %u (WFM: %u & UPD: %u)", w, h, x, y, marker, ioc_data.waveform_mode, ioc_data.update_mode))
 
-    -- Frontlight dimming in night mode
-    if fb.night_mode and is_flashing and fb:_isFullScreen(w, h) and fl_intensity > 5 then
+    -- Frontlight dimming in night mode (handle *every* flashes on device w/o Eclipse waveforms, because they're the worst).
+    if fb.night_mode and (fb.device:hasEclipseWfm() and (is_flashing and fb:_isFullScreen(w, h)) or is_flashing) and fl_intensity > 5 then
         -- 5 is an arbitrarily chosen value that I deemed to look better than just shutting it off ;p.
         powerd:setIntensity(5)
         frontlight_dimmed = true
