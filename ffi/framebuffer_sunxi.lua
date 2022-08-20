@@ -160,7 +160,12 @@ local function disp_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, wa
     end
 
     -- Handle night mode shenanigans
+    local frontlight_dimmed = false
+    local powerd, fl_intensity
     if fb.night_mode then
+        -- We'll need those later for frontlight shenanigans
+        powerd = fb.device:getPowerDevice()
+        fl_intensity = powerd:frontlightIntensity()
         -- Enforce a nightmode-specific mode to limit ghosting, where appropriate (i.e., partial & flashes).
         if fb:_isPartialWaveFormMode(waveform_mode) then
             waveform_mode = fb:_getNightWaveFormMode()
@@ -190,6 +195,13 @@ local function disp_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, wa
     -- Recap the actual details of the ioctl, vs. what UIManager asked for...
     fb.debug(string.format("disp_update: %ux%u region @ (%u, %u) (WFM: %u [flash: %s])", w, h, x, y, waveform_mode, is_flashing))
 
+    -- Frontlight dimming in night mode
+    if fb.night_mode and is_flashing and fb:_isFullScreen(w, h) and fl_intensity > 5 then
+        -- 5 is an arbitrarily chosen value that I deemed to look better than just shutting it off ;p.
+        powerd:setIntensity(5)
+        frontlight_dimmed = true
+    end
+
     if C.ioctl(fb.fd, ioc_cmd, ioc_data) == -1 then
         local err = ffi.errno()
         fb.debug("DISP_EINK_UPDATE2 ioctl failed:", ffi.string(C.strerror(err)))
@@ -199,7 +211,7 @@ local function disp_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, wa
     --       c.f., framebuffer_mxcfb for more details.
     --       On sunxi, the actual update calls will block for sensibly longer than on mxcfb,
     --       so these are likely to always return immediately.
-    if is_flashing and fb.mech_wait_update_complete then
+    if is_flashing and fb.mech_wait_update_complete and not frontlight_dimmed then
         marker = fb.marker_data[0]
         fb.debug("refresh: wait for completion of marker", marker)
         if fb:mech_wait_update_complete(marker) == -1 then
@@ -208,6 +220,15 @@ local function disp_update(fb, ioc_cmd, ioc_data, is_flashing, waveform_mode, wa
         end
         -- And make sure we won't wait for it again, in case the next refresh trips one of our wait_for_*  heuristics ;).
         fb.dont_wait_for_marker = marker
+    end
+
+    if frontlight_dimmed then
+        -- NOTE: The actual amount of time DISP_EINK_WAIT_FRAME_SYNC_COMPLETE blocks for is unreliable,
+        --       (it can return early for some mysterious reasons), so, when doing nightmode frontlight shenanigans,
+        --       we opt for a dumb 450ms sleep instead, which works out well enough,
+        --       (and matches the amount of time the ioctl actually blocks for when it doesn't go wonky).
+        ffiUtil.usleep(450000)
+        powerd:setIntensity(fl_intensity)
     end
 end
 
